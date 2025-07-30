@@ -1,0 +1,116 @@
+﻿html, body {
+	background: #f0f2f5;
+	margin:0;
+	padding:0;
+}
+.app-title {
+	margin-top:150px;
+	width:100%;
+	text-align:center;
+	color: #fff;
+	font-size:45px;
+	font-family:"Trebuchet MS", "Lucida Sans Unicode", "Lucida Grande", "Lucida Sans", Arial, sans-serif;
+	font-weight:bold;
+	text-shadow: 3px 3px 0 #dd1021, 3px -3px 0 #dd1021, -3px 3px 0 #dd1021, -3px -3px 0 #dd1021, 3px 0px 0 #dd1021, 0px 3px 0 #dd1021, -3px 0px 0 #dd1021, 0px -3px 0 #dd1021;		
+}
+.login-container {
+	position: fixed;
+	width:100%;
+	height:100%;
+}
+.form-wrapper {
+	position: absolute;
+	display:flex;
+	top: 50%;
+	left:50%;
+	width:100%;
+	padding:30px;
+	-webkit-transform: translate(-50%, -50%);
+	transform: translate(-50%, -50%);
+	overflow: hidden;	
+	justify-content: center;
+	gap: 100px;;
+	flex-wrap: wrap;
+}
+.login-logo {
+	padding:50px;
+	align-self: center;
+}
+.login-logo img {
+	width: 100%;
+	min-width:300px;
+}
+.login-form {
+	-webkit-box-shadow: 0 3px 9px rgba(0,0,0,.5);
+	box-shadow: 0 3px 9px rgba(0,0,0,.5);
+	border-radius: 10px;
+	min-width:200px;
+	width:330px;
+	padding:20px;
+}
+label {
+	font-size:18px;
+}
+.button-wrapper {
+	margin-top:30px;
+}
+.login-footer {
+	position:fixed;
+	width:100%;
+	padding:15px;
+	background:#fff;
+	bottom:0;
+	color:#636363;
+	font-size:12px;
+	text-align:center;
+}
+.page-loader-bd {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Sit on top */
+  padding-top: 100px; /* Location of the box */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgb(0,0,0); /* Fallback color */
+  background-color: rgba(0,0,0,0.2); /* Black w/ opacity */
+}
+.page-loader
+{
+	position:absolute;
+	top: 50%;
+	left: 50%;
+	-webkit-transform: translate(-50%, -50%);
+	transform: translate(-50%, -50%);
+	font-size:40px;
+	z-index:1;
+	color:#fff;
+}
+.btn-update {
+	cursor:pointer;
+	font-size:10px;
+}
+.btn-update:hover { 
+	color:#aeaeae;
+}
+.show-pass {
+	position:absolute;
+	right:10px;
+	font-size:18px;
+	top:10px;
+	cursor:pointer;
+}
+@media screen and (max-height: 750px) {
+	.app-title {
+		display:none;
+}
+}
+@media screen and (max-width: 860px) {
+	.body {	aspect-ratio: 16 / 9; }
+	.app-title { margin-top: 20px; }
+	.form-wrapper { gap:0; }
+	.login-form,.login-logo { width:90%; }
+	.login-logo { padding:20px; }
+}

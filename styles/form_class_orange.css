@@ -1,0 +1,112 @@
+﻿.tables {
+	padding:5px;
+	border-collapse:separate; 
+	border-spacing: 0 1em;
+}
+.tables th {
+	font-size: 12px;
+}
+.tables td button {
+	width:120px;
+}
+.table th {
+	white-space:nowrap;
+	background: var(--thheader-orange);
+	color:#fff;
+	text-align:center;
+	font-size: 12px;
+}
+.table td {
+	cursor:pointer;
+	padding:5px !important;
+	white-space:nowrap;
+	font-size:14px;
+}
+.ronanicons {
+	padding:3px 10px 3px 10px;
+	border-radius:3px;
+}
+.ronanicons:hover {
+	background:orange;
+}
+.al-right {
+	text-align:right;
+}
+.pad-right {
+	padding-right:20px !important;
+}
+/*
+.tableFixHead  { overflow: auto; height: calc(100vh - 195px); }
+.tableFixHead thead th { position: sticky; top: 0; z-index: 1; }
+.tableFixHead table  { border-collapse: collapse; width: 100%; }
+.tableFixHead th, .tableFixHead td { font-size:12px; } 
+.tableFixHead th     { background:#389462; }
+
+
+.tableFixHeadTF  { overflow: auto; height: calc(100vh); }
+.tableFixHeadTF thead th { position: sticky; z-index: 1; }
+.tableFixHeadTF table  { border-collapse: collapse; width: 100%; }
+.tableFixHeadTF th, .tableFixHeadTF td { font-size:14px; } 
+.tableFixHeadTF th     { background:#389462; }
+
+*/
+
+.tableFixHead  { overflow: auto; height: calc(100vh - 195px); }
+.tableFixHead thead th { position: sticky; top: 0; z-index: 1; background: var(--thheader-orange)}
+.tableFixHead table  { border-collapse: collapse; width: 100%; }
+.tableFixHead th, .tableFixHead td { font-size:12px; } 
+
+.tableFixHeadPROD { overflow: auto; height: calc(100vh - 195px); }
+.tableFixHeadPROD thead th { position: sticky; top: 0; z-index: 1; background: var(--thheader-orange) }
+.tableFixHeadPROD table  { border-collapse: collapse; width: 100%; }
+.tableFixHeadPROD th, .tableFixHead td { font-size:12px; } 
+
+.tableFixHeadPROD tbody:nth-child(odd) td {
+	background:#fef1ebs;
+	text-align:center;
+	font-size:14px;
+}
+.tableFixHeadPROD tbody:nth-child(even) td {
+  	background:#ffe3d5;
+	text-align:center;
+	font-size:14px;
+}
+.tableFixHeadPROD tfoot td {
+	text-align:center;
+	font-size:14px;
+	border-top:2px solid #aeaeae !important;
+}
+
+
+.notification {
+	display: none;
+	padding:5px;
+	border: 1px solid orange;
+	text-align:center;
+	border-radius:5px;
+	font-style:italic;
+}
+.tin,.tout {
+	border-bottom:5px solid #aeaeae;
+	display:block;
+}
+.tout {
+	position:absolute;
+	top:0;
+	width:100%;
+	height:49%;
+	overflow:hidden;
+}
+.tin {
+	position:absolute;
+	bottom:0;
+	width:100%;
+	height:49%;
+	overflow:hidden;
+}
+.actions {
+	width:100px;
+}
+.noid td {
+	background: #fae6e5;
+}
