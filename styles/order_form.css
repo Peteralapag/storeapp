@@ -1,0 +1,104 @@
+﻿.form-table {
+	position:relative;
+	float:left;
+	border:1px solid #aeaeae;
+	width: 8.5in;
+	height:5.5in;
+}
+.order-form-inner {
+	position:absolute;
+	width:8in;
+	height:5in;
+	left:.25in;
+	top:.25in;
+}
+.table-header-cell {
+	white-space: nowrap;
+	font-size:10px;
+	border:1px solid #333333;
+	padding:3px;
+	text-align:center;
+}
+.table-body-cell {
+	white-space: nowrap;
+	font-size:10px;
+	border:1px solid #333333;
+	padding:3px;
+}
+.approver {
+	position:absolute;
+	width:100%;
+	bottom:0;
+}
+.main-table {
+	height:
+}
+.formheader td {
+	margin-bottom:20mm;
+	font-size:11px;
+}
+.formheader input {
+	width:100%;
+	border:0;
+	padding:2px;
+}
+.mrs-title {
+	margin-bottom:5px;
+	text-align:center
+}
+.mrs-title span {
+	margin:0;
+	padding:0;
+	font-weight:800;
+}
+.myform {
+	float:left;
+	width: 4in;
+	margin-right:20px;
+	margin-bottom:10px;
+}
+.myform td {
+	border:1px solid #aeaeae;
+	padding: 0px 0px 0px 5px;
+}
+.myform td input, select {
+	font-size:14px;
+	width:100%;
+	border:0;
+}
+.results {
+	padding: 10px;
+}
+.uppertext {
+	font-size:12px;
+}
+.signature {
+	margin-top:0px;
+	height:40px;
+	text-align:center;
+	border-bottom:1px solid #aeaeae;
+}
+.signature img {
+	height:100%;
+}
+.requestername {
+	bottom:0;
+	width:100%;
+	color: var(--text-grey);
+}
+.requesterdate {
+	font-size:11px;
+	text-align:center
+}
+.controlno {
+	font-size:14px;
+	padding-right:20px
+}
+.notice {
+	display:none;
+	margin-bottom:10px;
+	border:1px solid orange;
+	background:#f7e7c9;
+	padding:5px 5px 5px 10px;
+	border-radius:5px;
+}

@@ -1,0 +1,81 @@
+﻿.rms-overlay {
+	width: 100%;
+	height: 100%;
+	display: none;
+	overflow:auto;
+	position: fixed;
+	top: 0px;
+	left: 0px;
+	background: rgba(243,243,243,0.6);
+	z-index: 1;
+}
+/* Inner */
+.rms-dialog-inner {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	max-height:95%;
+	max-width:95%;
+	-webkit-transform: translate(-50%, -50%);
+	transform: translate(-50%, -50%);
+	-webkit-box-shadow: 0 3px 9px rgba(0,0,0,.5);
+	box-shadow: 0 3px 9px rgba(0,0,0,.5);
+	border-radius: 10px;
+	background: #fff;
+	border:1px solid silver;
+	overflow: hidden;
+}
+.rms-modal-content {
+	position: relative;
+	overflow-y:auto;
+}
+@media screen and (min-height:768px){
+	.rms-dialog-inner {
+		max-height: 100%;
+	}
+}
+.rms-modal-page {
+	padding:20px;
+}
+.rms-modal-title {
+	padding:15px;
+	background:#fff;
+	color: #484848;
+	text-align:center;
+	font-weight:bold;
+	border-bottom:1px solid silver;
+}
+.rms-modal-close {
+	position: absolute;
+	top:5px;
+	right: 10px;
+	font-size: 24px;
+	text-align: center;
+	padding: 0px 15px 0px 15px;
+	cursor: pointer;
+}
+.rms-modal-close:hover {
+	background:dodgerblue;
+	border-radius:8px;
+	color:#fff;
+}
+.popup-footer {
+	position:absolute;
+	width:100%;
+	bottom:0;
+	padding:5px;
+	border-top:1px solid #ccc;
+	background:#f1f1f1;
+}
+.popup-footer button {
+	width:70px;
+	height:28px;
+	cursor:pointer;
+}
+@media screen and (max-width: 1080px)
+{
+	.rms-dialog-inner {
+		width:98%;
+	}
+
+}
