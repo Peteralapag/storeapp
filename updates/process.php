@@ -12,6 +12,107 @@ $time_stamp = date("Y-m-d H:i:s");
 
 
 
+if($_POST['mode'] == 'UpdateProductionSettings')
+{
+    if($functions->checkInternetConnection() != 1){
+        echo '
+            <script>
+            app_alert("System Message","Server is Offline at this moment","warning");
+            </script>
+        ';
+        exit();
+    }
+
+
+    $tables_to_update = [
+        'store_branchlist_burgerbuns',
+        'store_branchlist_production_exclude_items',
+        'store_branchlist_wheatloaf',
+        'store_ba_rm_header',
+        'store_merge_items'
+    ];
+
+    foreach($tables_to_update as $table_name)
+    {
+        $return = '';
+        $result = mysqli_query($conn, "SELECT * FROM ".$table_name);
+        $num_fields = mysqli_num_fields($result);
+
+        $return .= 'DROP TABLE '.$table_name.';';
+        $row2 = mysqli_fetch_row(mysqli_query($conn, 'SHOW CREATE TABLE '.$table_name));
+        $return .= "\n\n".$row2[1].";\n\n";
+
+        while ($row = mysqli_fetch_row($result))
+        {
+            $return .= 'INSERT INTO '.$table_name.' VALUES(';
+            for ($j = 0; $j < $num_fields; $j++)
+            { 
+                $row[$j] = addslashes($row[$j]);
+                $return .= isset($row[$j]) ? '"'.$row[$j].'"' : '""';
+                if($j < $num_fields - 1){ 
+                    $return .= ',';
+                }
+            }
+            $return .= ");\n";
+        }
+
+        $return .= "\n\n\n";
+        $filepath = '../updates/data/'.$table_name.".sql";
+        $handle = fopen($filepath, 'w+');
+        fwrite($handle, $return);
+        fclose($handle);
+
+        saveProducts($table_name, $db);
+    }
+}
+
+
+if($_POST['mode'] == 'updatingbakersguide')
+{
+
+	if($functions->checkInternetConnection() != 1){
+		echo '
+			<script>
+			app_alert("System Message","Server is Offline at this moment","warning");
+			</script>
+		';
+		exit();
+	}
+
+	$table_name = 'store_bakers_guide';
+	$return = '';
+    $result = mysqli_query($conn, "SELECT * FROM ".$table_name);
+    $num_fields = mysqli_num_fields($result);
+    $return .= 'DROP TABLE '.$table_name.';';
+    $row2 = mysqli_fetch_row(mysqli_query($conn, 'SHOW CREATE TABLE '.$table_name));
+    $return .= "\n\n".$row2[1].";\n\n";
+
+    for ($i=0; $i < $num_fields; $i++)
+    { 
+    	while ($row = mysqli_fetch_row($result))
+    	{
+            $return .= 'INSERT INTO '.$table_name.' VALUES(';
+            	for ($j=0; $j < $num_fields; $j++)
+            	{ 
+            	    $row[$j] = addslashes($row[$j]);
+            	    if (isset($row[$j]))
+            	    {
+            	        $return .= '"'.$row[$j].'"';} else { $return .= '""';}
+            	        if($j<$num_fields-1){ $return .= ',';
+            	    }
+                }
+             $return .= ");\n";
+        }
+    }
+    $return .= "\n\n\n";
+	$handle = fopen('../updates/data/'.$table_name.".sql", 'w+');
+	fwrite($handle, $return);
+	fclose($handle);
+	saveProducts($table_name,$db);
+}	
+
+
+
 
 if ($_POST['mode'] == 'checkemployees') {
     $query = "SELECT * FROM tbl_employees WHERE branch = ?";

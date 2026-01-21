@@ -33,8 +33,79 @@ function set_function(menuname,pagename)
 {
 	psaSpinnerOn();
 	
+	if(pagename == 'rm_inventory_record')
+	{
+		$.post("../pages/rm_inventory_record_header.php", { pagename: pagename },
+		function(data) {
+			$('#contentform').html(data);
+		});
+		$('#pagetitle').html(menuname);
+		$.post("../includes/rm_inventory_record_data.php", { pagename: pagename },
+		function(data) {
+			$('#pagetitle').html(menuname);
+			$('#contentdata').html(data);
+			psaSpinnerOff();
+		});
+	}
 	
-	if(pagename == 'brrr_submitserver')
+	else if(pagename == 'rm_transfer')
+	{
+		$.post("../pages/rm_transfer_form.php", { pagename: pagename },
+		function(data) {
+			$('#contentform').html(data);
+		});
+		$('#pagetitle').html(menuname);
+		$.post("../includes/rm_transfer_data.php", { pagename: pagename },
+		function(data) {
+			$('#contentdata').html(data);
+			psaSpinnerOff();
+		});
+	}
+	
+	else if(pagename == 'rm_receiving')
+	{
+		$.post("../pages/rm_content_form.php", { pagename: pagename },
+		function(data) {
+			$('#contentform').html(data);
+		});
+		$('#pagetitle').html(menuname);
+		$.post("../includes/rm_receiving_data.php", { pagename: pagename },
+		function(data) {
+			$('#contentdata').html(data);
+			psaSpinnerOff();
+		});
+	}
+	
+	else if(pagename == 'rm_pcount')
+	{
+		$.post("../pages/rm_content_form.php", { pagename: pagename },
+		function(data) {
+			$('#contentform').html(data);
+		});
+		$('#pagetitle').html(menuname);
+		$.post("../includes/rm_pcount_data.php", { pagename: pagename },
+		function(data) {
+			$('#contentdata').html(data);
+			psaSpinnerOff();
+		});
+	}
+
+	else if(pagename == 'rm_badorder')
+	{
+		$.post("../pages/rm_content_form.php", { pagename: pagename },
+		function(data) {
+			$('#contentform').html(data);
+		});
+		$('#pagetitle').html(menuname);
+		$.post("../includes/rm_badorder_data.php", { pagename: pagename },
+		function(data) {
+			$('#contentdata').html(data);
+			psaSpinnerOff();
+		});
+	}
+	
+
+	else if(pagename == 'brrr_submitserver')
 	{
 		$.post("../pages/brrr_submitserver_header.php", { pagename: pagename },
 		function(data) {
@@ -471,12 +542,12 @@ function set_function(menuname,pagename)
 	}
 	else if(pagename == 'build_assembly')
 	{
-		$.post("../build_assembly/build_assembly_header.php", { pagename: pagename },
+		$.post("../pages/build_assembly_header.php", { pagename: pagename },
 		function(data) {
 			$('#contentform').html(data);
 		});
 		$('#pagetitle').html(menuname);
-		$.post("../build_assembly/build_assembly.php", { pagename: pagename },
+		$.post("../includes/build_assembly_data.php", { pagename: pagename },
 		function(data) {
 			$('#pagetitle').html(menuname);
 			$('#contentdata').html(data);

@@ -1,63 +1,152 @@
 <?php
 include '../init.php';
-$db = new mysqli(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
+$db = new mysqli(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);    
+$functions = new TheFunctions;
+$branch = $functions->AppBranch();
 
-if ($db->connect_error) {
-    die("Connection failed: " . $db->connect_error);
+if (empty($branch)) {   
+    echo "<div class='alert alert-danger text-center fw-bold' role='alert'>No branch selected. Please select a branch first.</div>";
+    exit;
 }
 
-$functions = new TheFunctions();
+$datefrom = $_POST['datefrom'] ?? null;
+$dateto   = $_POST['dateto'] ?? null;
 
-$monthname = isset($_POST['monthname']) ? $_POST['monthname'] : '';
-$yearname = isset($_POST['yearname']) ? $_POST['yearname'] : '';
-$branch = isset($_POST['branch']) ? $_POST['branch'] : '';
-
-$monthNumber = '';
-$monthyear = '';
-
-if (!empty($monthname) && !empty($yearname)) {
-    $monthNumber = $functions->GetMonthNumber($monthname);
-    $monthyear = $yearname . '-' . $monthNumber;
+if (empty($datefrom) || empty($dateto)) {
+    echo "<div class='alert alert-danger text-center fw-bold' role='alert'>Please select Date From and Date To.</div>";  
+    exit;
 }
 
+$dateHeader = date("F d, Y", strtotime($datefrom)) . " to " . date("F d, Y", strtotime($dateto));
+$start = new DateTime($datefrom);
+$end   = new DateTime($dateto);
+$end->modify('+1 day'); // for looping in table
+
+// ------------------
+// Check special produces
+// ------------------
+$produceWheat = false;
+$produceBurger = false;
+
+// Wheat Loaf check
+$q = $db->prepare("SELECT is_produce_wheat_loaf FROM store_branchlist_wheatloaf WHERE branch = ?");
+$q->bind_param("s", $branch);
+$q->execute();
+$result = $q->get_result()->fetch_assoc();
+if (($result['is_produce_wheat_loaf'] ?? 'NO') === 'YES') {
+    $produceWheat = true;
+}
+$q->close();
+
+// Burger Buns check
+$q = $db->prepare("SELECT is_produce_burger_buns FROM store_branchlist_burgerbuns WHERE branch = ?");
+$q->bind_param("s", $branch);
+$q->execute();
+$result = $q->get_result()->fetch_assoc();
+if (($result['is_produce_burger_buns'] ?? 'NO') === 'YES') {
+    $produceBurger = true;
+}
+$q->close();
+
+// ------------------
+// Prepare query
+// ------------------
+$excluded = [
+    'BEVERAGES','BOTTLED WATER','COFFEE','ROSE HIGH-END BREADS','ROSE BINALOT & PASALUBONG',
+    'ROSE NUTRI-DENSE','ALL TIME CAKE (CLASSIC)','PREMIUM CAKES (HIGH-END)','HIGH-END COFFEE',
+    'FGFRAP','MILK TEA','ROSE CLASSIC SPECIAL','MERCHANDISE OTHERS','ICE CREAM','CAKES',
+    'RAWMATS','BREADS','CELEBRATION CAKES (FLAGSLIP)','SUPPLIES','SCRAP ITEMS'
+];
+$placeholders = implode(',', array_fill(0, count($excluded), '?'));
+
+// Special items
+$specialItems = [];
+if ($produceWheat) $specialItems[] = 11570;
+if ($produceBurger) $specialItems[] = 12818;
+
+if (!empty($specialItems)) {
+    $placeholdersSpecial = implode(',', array_fill(0, count($specialItems), '?'));
+    $extendquery = "AND (s.category NOT IN ($placeholders) OR s.item_id IN ($placeholdersSpecial))"; // <-- i-specify s.item_id
+    $params = array_merge([$branch], $excluded, $specialItems, [$datefrom, $dateto]);
+    $typeString = str_repeat('s', 1 + count($excluded)) . str_repeat('i', count($specialItems)) . 'ss';
+} else {
+    $extendquery = "AND s.category NOT IN ($placeholders)"; // <-- i-specify s.category
+    $params = array_merge([$branch], $excluded, [$datefrom, $dateto]);
+    $typeString = str_repeat('s', 1 + count($excluded)) . 'ss';
+}
+
+// ------------------
+// Main query with join
+// ------------------
+$sql = "
+    SELECT s.item_id, s.category, s.item_name, s.report_date, s.stock_in, i.yield_per_kilo
+    FROM store_summary_data s
+    LEFT JOIN store_items i ON s.item_id = i.id
+
+    LEFT JOIN store_branchlist_production_exclude_items e 
+        ON e.item_id = s.item_id 
+       AND e.branch = s.branch
+       AND e.exclude_this_item = 'YES'
+
+    WHERE s.branch = ?
+      $extendquery
+      AND e.item_id IS NULL
+      AND s.stock_in > 0
+      AND s.report_date BETWEEN ? AND ?
+    ORDER BY s.item_name, s.report_date
+";
+
+$stmt = $db->prepare($sql);
+
+// Bind parameters by reference
+$bindParams = [$typeString];
+foreach ($params as $key => $value) {
+    $bindParams[] = &$params[$key];
+}
+call_user_func_array([$stmt, 'bind_param'], $bindParams);
+
+$stmt->execute();
+$res = $stmt->get_result();
+
+// ------------------
+// Collect data
+// ------------------
+$data = [];
+while ($row = $res->fetch_assoc()) {
+    $code = $row['item_id'];
+    $item = $row['item_name'];
+    $date = $row['report_date'];
+    $stock_in = floatval($row['stock_in']);
+    $yield = floatval($row['yield_per_kilo'] ?? 0);
+
+    $output = ($yield > 0) ? $stock_in / $yield : 0;
+
+    $data[$item]['itemcode'] = $code;
+    $data[$item]['dates'][$date] = ($data[$item]['dates'][$date] ?? 0) + $output;
+}
+$stmt->close();
 ?>
-<style>
-.total-wrapper td {
-    border-top: 3px solid #aeaeae;
-    font-weight: bold;
-    text-align: center;
-}
-.no-data {
-    text-align: center;
-    font-weight: bold;
-}
-.tbody tr:nth-child(odd) td {
-    background: #fef1eb;
-    text-align: center;
-    font-size: 12px;
-}
-.tbody tr:nth-child(even) td {
-    background: #ffe3d5;
-    text-align: center;
-    font-size: 12px;
-}
-</style>
 
-<div class="alert alert-success">
-    Please verify the accuracy of all data in your Summary Report KL.USED for the selected month before presenting the Production Data Report.
-</div>
+<style>
+.tbody tr:nth-child(odd) td { background:#fef1eb; text-align:center; font-size:12px; }
+.tbody tr:nth-child(even) td { background:#ffe3d5; text-align:center; font-size:12px; }
+</style>
 
 <table style="width: 100%" class="table table-hover table-striped table-bordered">
     <thead>
         <tr>
-            <th colspan="34">PRODUCTION REPORT - <?php echo htmlspecialchars($monthname) . ' - ' . htmlspecialchars($yearname); ?></th>
+            <th colspan="34" style="text-align:center;">
+                PRODUCTION REPORT<br>
+                <small><?= htmlspecialchars($branch); ?></small><br>
+                <small><?= htmlspecialchars($dateHeader); ?></small>
+            </th>
         </tr>
         <tr>
             <th style="width:50px;text-align:center">#</th>
             <th style="width:250px;">ITEM NAME</th>
             <?php
-            for ($i = 1; $i <= 31; $i++) {
-                echo '<th>' . sprintf('%02d', $i) . '</th>';
+            for ($date = clone $start; $date < $end; $date->modify('+1 day')) {
+                echo '<th>' . $date->format('d') . '</th>';
             }
             ?>
             <th>TOTAL</th>
@@ -65,85 +154,28 @@ if (!empty($monthname) && !empty($yearname)) {
     </thead>
     <tbody class="tbody">
         <?php
-        if (!empty($branch) && !empty($monthNumber) && !empty($yearname)) {
-            $queryItem = "
-                SELECT item_id, item_name FROM store_summary_data 
-                WHERE kilo_used > 0 
-                AND branch = ? 
-                AND MONTH(report_date) = ? 
-                AND YEAR(report_date) = ? 
-                AND 
-                	(
-                		category = 'ROSE CLASSIC HOT BREAD' OR
-                		category = 'ROSE TASTY LOAF' OR
-                		category = 'ROSE HIGH-END BREADS' OR
-                		category = 'ROSE NUTRI-DENSE' OR
-                		category = 'ROSE BINALOT & PASALUBONG'
-                	)
-                	 
-                GROUP BY item_name
-            ";
-
-            $stmt = $db->prepare($queryItem);
-            $stmt->bind_param("sss", $branch, $monthNumber, $yearname);
-            $stmt->execute();
-            $itemResult = $stmt->get_result();
-
-            if ($itemResult->num_rows > 0) {
-                $numbering = 0;
-                $dailyTotals = array_fill(1, 31, 0);
-
-                while ($ROW = $itemResult->fetch_assoc()) {
-                    $numbering++;
-                    $item_id = $ROW['item_id'];
-                    $item_name = $ROW['item_name'];
-
-                    echo '<tr>';
-                    echo '<td>' . $numbering . '</td>';
-                    echo '<td>' . htmlspecialchars($item_name) . '</td>';
-
-                    $monthlyTotal = 0;
-
-                    for ($i = 1; $i <= 31; $i++) {
-                        $daysNumber = sprintf('%02d', $i);
-                        $reportDate = $monthyear . '-' . $daysNumber;
-                        $totalValue = $functions->productionDataTotalPerDay($item_id, $branch, $reportDate, $db);
-
-                        if (is_numeric($totalValue) && $totalValue > 0) {
-                            $monthlyTotal += $totalValue;
-                            $dailyTotals[$i] += $totalValue;
-                        } else {
-                            $totalValue = '';
-                        }
-
-                        echo '<td style="text-align:right">' . htmlspecialchars($totalValue) . '</td>';
-                    }
-
-                    echo '<td style="text-align:right">' . htmlspecialchars($monthlyTotal) . '</td>';
-                    echo '</tr>';
-                }
-
-                echo '<tr>';
-                echo '<td colspan="2">Total</td>';
-
-                for ($i = 1; $i <= 31; $i++) {
-                    $totalDaysItem = $dailyTotals[$i] <= 0 ? '' : $dailyTotals[$i];
-                    echo '<td style="text-align:right">' . htmlspecialchars($totalDaysItem) . '</td>';
-                }
-
-                $totalMonthly = array_sum($dailyTotals);
-                echo '<td style="text-align:right">' . htmlspecialchars($totalMonthly) . '</td>';
-                echo '</tr>';
-            } else {
-                echo '<tr><td colspan="34">No Results Found</td></tr>';
-            }
-
-            $stmt->close();
+        if (empty($data)) {
+            echo "<tr><td colspan='34' style='text-align:center;'>No records found.</td></tr>";
         } else {
-            echo '<tr><td colspan="34">No Results Found</td></tr>';
-        }
+            $ctr = 1;
+            foreach ($data as $item => $details) {
+                echo "<tr>";
+                echo "<td>{$ctr}</td>";
+                echo "<td style='text-align:left;'>{$item}</td>";
 
-        $db->close();
+                $total = 0;
+                for ($d = clone $start; $d < $end; $d->modify('+1 day')) {
+                    $dateKey = $d->format('Y-m-d');
+                    $val = $details['dates'][$dateKey] ?? 0;
+                    $total += $val;
+                    echo "<td>" . ($val > 0 ? number_format($val, 2) : '') . "</td>";
+                }
+
+                echo "<td><b>" . number_format($total, 2) . "</b></td>";
+                echo "</tr>";
+                $ctr++;
+            }
+        }
         ?>
     </tbody>
 </table>

@@ -74,9 +74,9 @@ $dateLockCheckerrm = $functions->dateLockCheckerRM($branch,$transdate,$db);
 			
 		</td>
 		<td style="text-align:right;">
-			<button id="gendum" class="btn btn-primary" onclick="generateDUM()">Generate DUM</button>
+			<!--button id="gendum" class="btn btn-primary" onclick="generateDUM()">Generate DUM</button>
 			<button class="btn btn-warning" onclick="calculateDUM()" <?php echo $action_btn; ?>>Calculate DUM</button>
-			<button class="btn btn-danger" onclick="reGenerateDUM()" <?php echo $action_btn; ?>>Regeneate DUM</button>
+			<button class="btn btn-danger" onclick="reGenerateDUM()" <?php echo $action_btn; ?>>Regeneate DUM</button-->
 		</td>
 	</tr>
 </table>

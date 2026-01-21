@@ -2,6 +2,58 @@
 class TheFunctions
 {	
 	
+	
+	public function getRMBuildAssemblyTotal($rmName, $rm_item_id, $branch, $report_date, $shift, $db)
+	{
+	
+	    $sql = "
+	        SELECT 
+	            SUM(bg.unit_in_grams * (s.stock_in / NULLIF(i.yield_per_kilo,0))) AS total_usage
+	        FROM store_summary_data s
+	        LEFT JOIN store_items i ON s.item_id = i.id
+	        LEFT JOIN store_bakers_guide bg ON bg.itemcode = s.item_id AND bg.rawmats_name = ?
+	        WHERE s.branch = ?
+	          AND s.report_date = ?
+	          AND s.stock_in > 0
+	    ";
+		
+	    $types = "sss";
+	    $params = [$rmName, $branch, $report_date];
+	
+	    if (!empty($shift)) {
+	        $sql .= " AND s.shift = ?";
+	        $types .= "s";
+	        $params[] = $shift;
+	    }
+	
+	
+	    $stmt2 = $db->prepare($sql);
+	    if ($stmt2 === false) {
+	        // Log SQL error for debugging
+	        error_log("getRMBuildAssemblyTotal prepare failed (usage sql): " . $db->error . " -- SQL: " . $sql);
+	        return 0;
+	    }
+	
+	    // bind params dynamically
+	    $bind_names[] = $types;
+	    for ($i = 0; $i < count($params); $i++) {
+	        $bind_name = 'param' . $i;
+	        $$bind_name = $params[$i];
+	        $bind_names[] = &$$bind_name; // note: bind_param requires references
+	    }
+	    call_user_func_array([$stmt2, 'bind_param'], $bind_names);
+	
+	    $stmt2->execute();
+	    $res2 = $stmt2->get_result();
+	    $data = $res2 ? $res2->fetch_assoc() : null;
+	    $stmt2->close();
+	
+	    return floatval($data['total_usage'] ?? 0);
+	}
+
+	
+	
+	
 	public function checkTransferInPosted($branch,$reportDate,$shift,$db)
     {
 		echo $sql = "SELECT * FROM store_transfer_data WHERE report_date='$reportDate' AND shift='$shift' AND transfer_to='$branch' AND posted='No' AND status='Open' LIMIT 1";
@@ -1825,7 +1877,7 @@ class TheFunctions
 	}
 	public function SaveToDUM($value,$db)
 	{				
-		$queryDataInsert = "INSERT INTO store_dum_data (`sid`,`item_id`,`branch`,`report_date`,`shift`,`item_name`,`beginning`,`delivery`,`transfer_in`,`transfer_out`,`physical_count`,`price_kg`)
+		$queryDataInsert = "INSERT INTO store_dum_data (`sid`,`item_id`,`branch`,`report_date`,`shift`,`item_name`,`beginning`,`delivery`,`transfer_in`,`transfer_out`,`actual_usage`,`physical_count`,`price_kg`)
 		VALUES ($value)";
 		if ($db->query($queryDataInsert) === TRUE) {}else {  echo $db->error;}
 	}
@@ -2000,7 +2052,139 @@ class TheFunctions
 					echo '<script>app_alert("System Message","'.$db->error.'","warning");</script>';
 				}
 			}
-		}			
+		}		
+		
+		if($table == 'bakersguide')
+		{
+			if($type == 'main')
+			{
+				$sqlMainFGTS = "SELECT COUNT(id) as mecnt FROM store_bakers_guide";
+				$MainFGTSResult = mysqli_query($conn, $sqlMainFGTS);
+				$mainBCount = mysqli_fetch_assoc($MainFGTSResult)['mecnt'];
+				return $mainBCount;
+			}
+			if($type == 'branch')
+			{
+				$sqlBranchItems = "SELECT COUNT(id) as itemcnt FROM store_bakers_guide";
+				$branchItemsResult = mysqli_query($db, $sqlBranchItems);
+				if ($branchItemsResult->num_rows > 0)
+				{
+					$mainItemCount = mysqli_fetch_assoc($branchItemsResult)['itemcnt'];
+					return $mainItemCount;
+				}
+				else
+				{
+					echo '<script>app_alert("System Message","'.$db->error.'","warning");</script>';
+				}
+			}
+		}
+		
+		
+		
+		if($table == 'branchlist_wheatloaf')
+		{
+			if($type == 'main')
+			{
+				$sqlMainFGTS = "SELECT COUNT(id) as mecnt FROM store_branchlist_wheatloaf";
+				$MainFGTSResult = mysqli_query($conn, $sqlMainFGTS);
+				$mainBCount = mysqli_fetch_assoc($MainFGTSResult)['mecnt'];
+				return $mainBCount;
+			}
+			if($type == 'branch')
+			{
+				$sqlBranchItems = "SELECT COUNT(id) as itemcnt FROM store_branchlist_wheatloaf";
+				$branchItemsResult = mysqli_query($db, $sqlBranchItems);
+				if ($branchItemsResult->num_rows > 0)
+				{
+					$mainItemCount = mysqli_fetch_assoc($branchItemsResult)['itemcnt'];
+					return $mainItemCount;
+				}
+				else
+				{
+					echo '<script>app_alert("System Message","'.$db->error.'","warning");</script>';
+				}
+			}
+		}
+		
+		if($table == 'branchlist_burgerbuns')
+		{
+			if($type == 'main')
+			{
+				$sqlMainFGTS = "SELECT COUNT(id) as mecnt FROM store_branchlist_burgerbuns";
+				$MainFGTSResult = mysqli_query($conn, $sqlMainFGTS);
+				$mainBCount = mysqli_fetch_assoc($MainFGTSResult)['mecnt'];
+				return $mainBCount;
+			}
+			if($type == 'branch')
+			{
+				$sqlBranchItems = "SELECT COUNT(id) as itemcnt FROM store_branchlist_burgerbuns";
+				$branchItemsResult = mysqli_query($db, $sqlBranchItems);
+				if ($branchItemsResult->num_rows > 0)
+				{
+					$mainItemCount = mysqli_fetch_assoc($branchItemsResult)['itemcnt'];
+					return $mainItemCount;
+				}
+				else
+				{
+					echo '<script>app_alert("System Message","'.$db->error.'","warning");</script>';
+				}
+			}
+		}
+		
+		if($table == 'branchlist_production_exclude_items')
+		{
+			if($type == 'main')
+			{
+				$sqlMainFGTS = "SELECT COUNT(id) as mecnt FROM store_branchlist_production_exclude_items";
+				$MainFGTSResult = mysqli_query($conn, $sqlMainFGTS);
+				$mainBCount = mysqli_fetch_assoc($MainFGTSResult)['mecnt'];
+				return $mainBCount;
+			}
+			if($type == 'branch')
+			{
+				$sqlBranchItems = "SELECT COUNT(id) as itemcnt FROM store_branchlist_production_exclude_items";
+				$branchItemsResult = mysqli_query($db, $sqlBranchItems);
+				if ($branchItemsResult->num_rows > 0)
+				{
+					$mainItemCount = mysqli_fetch_assoc($branchItemsResult)['itemcnt'];
+					return $mainItemCount;
+				}
+				else
+				{
+					echo '<script>app_alert("System Message","'.$db->error.'","warning");</script>';
+				}
+			}
+		}
+		
+		
+		if($table == 'ba_rm_header')
+		{
+			if($type == 'main')
+			{
+				$sqlMainFGTS = "SELECT COUNT(id) as mecnt FROM store_ba_rm_header";
+				$MainFGTSResult = mysqli_query($conn, $sqlMainFGTS);
+				$mainBCount = mysqli_fetch_assoc($MainFGTSResult)['mecnt'];
+				return $mainBCount;
+			}
+			if($type == 'branch')
+			{
+				$sqlBranchItems = "SELECT COUNT(id) as itemcnt FROM store_ba_rm_header";
+				$branchItemsResult = mysqli_query($db, $sqlBranchItems);
+				if ($branchItemsResult->num_rows > 0)
+				{
+					$mainItemCount = mysqli_fetch_assoc($branchItemsResult)['itemcnt'];
+					return $mainItemCount;
+				}
+				else
+				{
+					echo '<script>app_alert("System Message","'.$db->error.'","warning");</script>';
+				}
+			}
+		}
+
+		
+	
+			
 	}
 	public function ProductionDailyTotalAmount($branch,$report_date,$items,$db) // PSA CLASS DAPAT ITEM ID
 	{

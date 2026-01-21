@@ -1,6 +1,6 @@
 <?php
 $dbhost = "127.0.0.1";
-$dbuser = "rbsapps";
+$dbuser = "root";
 $dbpass = "admin@rbs.com";
 $dbname = "storeapp_data";
 

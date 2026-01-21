@@ -75,8 +75,8 @@ else
 		$actual_count = $TheFunctions->rmInventoryValue($selectedbranch,$item_id,$dateselectfrom,$dateselectto,'actual_count',$db);
 		$difference = $TheFunctions->rmInventoryValue($selectedbranch,$item_id,$dateselectfrom,$dateselectto,'difference',$db);
 		$amount = $TheFunctions->rmInventoryValue($selectedbranch,$item_id,$dateselectfrom,$dateselectto,'amount',$db);
-		$counter_out = $TheFunctions->rmDUMValue($selectedbranch,$item_id,$dateselectfrom,$dateselectto,'counter_out',$db);
-		$actual_usage = $TheFunctions->rmDUMValue($selectedbranch,$item_id,$dateselectfrom,$dateselectto,'actual_usage',$db);
+		$counter_out = $TheFunctions->rmInventoryValue($selectedbranch,$item_id,$dateselectfrom,$dateselectto,'counter_out',$db);
+		$actual_usage = $TheFunctions->rmInventoryValue($selectedbranch,$item_id,$dateselectfrom,$dateselectto,'actual_usage',$db);
 		$totalamount += $amount;
 ?>
 	<tr>		

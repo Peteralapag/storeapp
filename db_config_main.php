@@ -6,7 +6,7 @@ $conhost = $server.":13306";
 $conuser = "rbsapps";
 $conpass = "admin@rbs.com";
 //$conname = "rosebakeshop_data";
-$conname = "rosebakeshop_data";
+$conname = "rosebakeshop_deyta";
 
 /* ################### MYSQL DATABASE INFORMATION ########################### */
 define('CON_HOST', $conhost);

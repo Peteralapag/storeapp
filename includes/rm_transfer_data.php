@@ -12,16 +12,16 @@ if(isset($_POST['search']))
 {
 	$item_name = $_POST['search'];
 	$shift = $_SESSION['session_shift'];
-	$q = "WHERE report_date='$trans_date' AND shift='$shift' AND branch='$store_branch' AND item_name LIKE '%$item_name%'";
-	$iN = "WHERE report_date='$trans_date' AND shift='$shift' AND transfer_to='$store_branch' AND item_name LIKE '%$item_name%'";
+	$q = "WHERE report_date='$trans_date' AND shift='$shift' AND branch='$store_branch' AND transfer_from='$store_branch' AND item_name LIKE '%$item_name%'";
+	$iN = "WHERE report_date='$trans_date' AND shift='$shift' AND transfer_to='$store_branch' AND transfer_from='$store_branch' AND item_name LIKE '%$item_name%'";
 } 
 else
 {
 	if(isset($_SESSION['session_shift'])) 
 	{
 		$shift = $_SESSION['session_shift'];
-		$q = "WHERE report_date='$trans_date' AND shift='$shift' AND branch='$store_branch'";
-		$iN = "WHERE report_date='$trans_date' AND shift='$shift' AND transfer_to='$store_branch'";
+		$q = "WHERE report_date='$trans_date' AND shift='$shift' AND branch='$store_branch' AND transfer_from='$store_branch'";
+		$iN = "WHERE report_date='$trans_date' AND shift='$shift' AND branch='$store_branch' AND transfer_to='$store_branch'";
 	} else {
 		$shift = '';
 		$q = "WHERE report_date='$trans_date' AND branch='$store_branch'";
@@ -87,7 +87,7 @@ else
 					<td style="text-align:center; padding:1px !important" class="actions">
 						<?php if($status == 'Open') { ?>
 						<div>
-							<button class="btn btn-success btn-sm" style="width:49%;font-size:11px" onclick="EditUserChecking('edit','<?php echo $file_name; ?>','<?php echo $title; ?>','<?php echo $rowid; ?>')"><i class="fa-duotone fa-pencil"></i></button>
+							<!--button class="btn btn-success btn-sm" style="width:49%;font-size:11px" onclick="EditUserChecking('edit','<?php echo $file_name; ?>','<?php echo $title; ?>','<?php echo $rowid; ?>')"><i class="fa-duotone fa-pencil"></i></button-->
 							<button class="btn btn-danger btn-sm" style="width:49%;font-size:11px" onclick="DeleteUserChecking('<?php echo $rowid; ?>','<?php echo $file_name; ?>','<?php echo $item_name; ?>')"><i class="fa-solid fa-trash"></i></button>
 						</div>
 						<?php }  else {?>
@@ -172,12 +172,12 @@ else
 					<td colspan="2"><?php echo $trans_type." ".$ROWS['item_name']." ".$noid_text; ?></td> <!-- ITEM NAME -->
 					<td class="al-right" style=" padding-right:30px !important"><?php echo $ROWS['weight']; ?></td> <!-- ITEM NAME -->
 					<td style="text-align:right; padding-right:30px !important"><?php echo $ROWS['units']; ?></td> <!-- ACTUAL YIELD -->
-					<td><?php echo $ROWS['branch']; ?></td> <!-- BAKE -->
+					<td><?php echo $ROWS['transfer_from']; ?></td> <!-- BAKE -->
 					<td style="text-align:center"><?php echo $status; ?></td>
 					<td style="text-align:center; padding:1px !important" class="actions">
 						<?php if($status == 'Open') { ?>
 						<div>
-							<button id="postitembtn<?php echo $x; ?>" class="btn btn-info btn-sm" style="font-size:11px;width:49%" onclick="postItem('<?php echo $file_name; ?>','<?php echo $x; ?>','<?php echo $rowid; ?>')"><i class="fa-solid fa-bring-forward"></i></button>
+							<!--button id="postitembtn<?php echo $x; ?>" class="btn btn-info btn-sm" style="font-size:11px;width:49%" onclick="postItem('<?php echo $file_name; ?>','<?php echo $x; ?>','<?php echo $rowid; ?>')"><i class="fa-solid fa-bring-forward"></i></button-->
 							<button class="btn btn-danger btn-sm" <?php echo $btn_delete; ?> style="width:49%;font-size:11px" onclick="deleteItem('<?php echo $rowid; ?>','<?php echo $file_name; ?>','<?php echo $item_name; ?>')"><i class="fa-solid fa-trash"></i></button>							
 							<!-- button class="btn btn-danger btn-sm" style="font-size:11px;width:49%;" onclick="postItems()" <?php echo $btn_delete; ?>><i class="fa-solid fa-trash"></i></button -->
 						</div>

@@ -4,7 +4,7 @@ require '../class/functions.class.preview.php';
 require '../class/functions_forms.class.php';
 $db = new mysqli(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
 
-$function = new TheFunctions;
+$functions = new TheFunctions;
 $FunctionForms = new FunctionForms;
 $preview = new preview;
 
@@ -45,6 +45,27 @@ $prevCutPcountStatus = $myShifting == 2? $FunctionForms->twoShiftingPostingStatu
 
 $shiftback = $myShifting == 2? $FunctionForms->twoShiftingShiftGetback($shift, $transdate, $branch, $db): $FunctionForms->threeShiftingShiftGetback($shift, $transdate, $branch, $db);
 $transdateback = $myShifting == 2? $FunctionForms->twoShiftingTransDateGetback($shift, $transdate, $branch, $db): $FunctionForms->threeShiftingTransDateGetback($shift, $transdate, $branch, $db);
+
+
+
+
+
+function getChargesTotal($itemname,$branch,$transdate,$shift,$db)
+{
+    $query = "
+        SELECT SUM(total) AS qty_total 
+        FROM store_charges_data 
+        WHERE branch='$branch' 
+        AND report_date='$transdate' 
+        AND shift='$shift' 
+        AND item_name='$itemname'
+    ";
+    
+    $result = mysqli_query($db, $query);
+    $row = mysqli_fetch_assoc($result);
+
+    return $row['qty_total'] ?? 0;
+}
 ?>
 <style>
 thead {
@@ -179,10 +200,12 @@ thead {
 				}
 				
 				
-				$chargesval = $preview->getTableValue('charges','quantity',$itemname,$branch,$transdate,$shift,$db);
+				$chargesempname = '<i class="fa fa-pencil" aria-hidden="true"></i>';///backtodefault
+				
+				$chargesval = getChargesTotal($itemname,$branch,$transdate,$shift,$db);
 				
 				
-				$transferoutval = $preview->getTableValue('transfer','quantity',$itemname,$branch,$transdate,$shift,$db);
+				$transferoutval = $preview->getTableValuetransferOut('transfer','quantity',$itemname,$branch,$transdate,$shift,$db);
 				$boval = $preview->getTableValue('badorder','quantity',$itemname,$branch,$transdate,$shift,$db);
 				$damageval = $preview->getTableValue('damage','quantity',$itemname,$branch,$transdate,$shift,$db);
 				
@@ -214,8 +237,8 @@ thead {
 
 
 
-	        		<td id="charges_<?php echo $i ?>" style="text-align:center;<?php echo $styleStatusCharges?>; height: 23px;" <?php echo $contenteditableStatusCharges?> onkeyup="charges('<?php echo $i?>','<?php echo $itemname?>','<?php echo $item_id?>')"><?php echo $chargesval?></td>
-					<td id="chargesemployeename_<?php echo $i ?>" style="text-align:center; height: 23px;" <?php echo $contenteditableStatusCharges?> onClick="<?php echo $chargesfunctionname?>('<?php echo $i?>','<?php echo $itemname?>','<?php echo $item_id?>')"><?php echo $chargesempname?></td>
+	        		<td id="charges_<?php echo $i ?>" style="text-align:center;height: 23px;"><?php echo $chargesval?></td>
+					<td id="chargesemployeename_<?php echo $i ?>" style="text-align:center; height: 23px;" <?php echo $contenteditableStatusCharges?> onClick="addChargesEmployee('<?php echo $i?>','<?php echo $itemname?>','<?php echo $item_id?>')"><?php echo $chargesempname?></td>
 
 
 
@@ -254,13 +277,22 @@ function viewtransfer(params,itemname,itemid){
 
 
 function addChargesEmployee(params,itemname,itemid){
-	
-	$.post("./apps/charges_employee_form.php", { params: params, itemname: itemname, itemid: itemid },
+
+	/*
+	$.post("./apps/charges_employee_multiple.php", { params: params, itemname: itemname, itemid: itemid },
 	function(data) {
 		$('#additem_title').html('ADD CHARGES EMPLOYEE');
 		$("#additem_page").html(data);
 	});
 	$('#additem').fadeIn();
+	*/
+	
+	 $.post("./apps/charges_employee_form.php", { params: params, itemname: itemname, itemid: itemid },
+	function(data) {
+		$('#additemcharges_title').html('ADD CHARGES MULTIPLE EMPLOYEE');
+		$("#additemcharges_page").html(data);
+	});
+	$('#additemcharges').fadeIn();
 
 }
 

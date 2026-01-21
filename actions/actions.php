@@ -1,4 +1,10 @@
 <?PHP
+
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
+
 include '../init.php';
 if(!isset($_SESSION['appstore_userlevel']) || !$_SESSION['appstore_userlevel']) {	
 	session_destroy();
@@ -27,6 +33,361 @@ $branch = $functions->AppBranch();
 $transdate = $functions->GetSession('branchdate');
 $shift = $functions->GetSession('shift');
 $time_stamp = date("Y-m-d H:i:s");
+
+
+if ($mode == 'showinitemlistrawmats') {
+    $itemname = $_POST['itemname'];
+    $query = "SELECT product_name FROM store_items WHERE category_name = 'RAWMATS' AND status = 'ACTIVE' AND product_name LIKE ?";
+    $stmt = $db->prepare($query);
+    $searchTerm = '%' . $itemname . '%';
+    $stmt->bind_param("s", $searchTerm);
+    $stmt->execute();
+    $result = $stmt->get_result();
+	echo '<script>$("#mycategory").val("");$("#myitemid").val("");</script>';
+    while ($row = $result->fetch_assoc()) {
+        $productName = htmlspecialchars($row['product_name'], ENT_QUOTES, 'UTF-8');
+        echo '<option value="' . $productName . '"></option>';
+    }
+    $stmt->close();
+}
+
+if($mode == 'savermcout_new')
+{
+	$itemname = $_POST['itemname'];
+    $category = $functions->GetItemCategory($itemname,$db);
+    $qty = $_POST['qty'];
+    $itemid = $_POST['itemid'];
+    $branch = $_POST['branch'];
+    $transdate = $_POST['transdate'];
+    $shift = $_POST['shift'];
+
+    $datecreated = date("Y-m-d H:i:s");   
+    
+    $check_query = "SELECT * FROM store_rm_summary_data WHERE item_name = '$itemname' AND branch = '$branch' AND report_date = '$transdate' AND shift = '$shift'";
+	$result = mysqli_query($db, $check_query);
+	if (mysqli_num_rows($result) > 0) 
+	{
+		$updateQuery = "UPDATE store_rm_summary_data SET counter_out='$qty', date_updated='$datecreated', updated_by='$employeename' WHERE item_name = '$itemname' AND branch = '$branch' AND report_date = '$transdate' AND shift = '$shift'";
+	    if(mysqli_query($db, $updateQuery)) {
+	        echo "Quantity updated successfully";
+	    } else {
+	        echo "Error updating quantity";
+	    }
+	}
+	else
+	{
+		$insertQuery = "INSERT INTO store_rm_summary_data (branch,report_date,shift,category,item_name,item_id,counter_out,date_created) VALUES ('$branch', '$transdate', '$shift', '$category', '$itemname', '$itemid', '$qty', '$datecreated')";
+        mysqli_query($db, $insertQuery);
+	}
+}
+
+
+if($mode == 'savearmreceiving_new')
+{
+	$itemname = $_POST['itemname'];
+    $category = $functions->GetItemCategory($itemname,$db);
+    $qty = $_POST['qty'];
+    $itemid = $_POST['itemid'];
+    $branch = $_POST['branch'];
+    $transdate = $_POST['transdate'];
+    $shift = $_POST['shift'];
+
+    $employeename = $_SESSION['appstore_appnameuser'];
+    $datecreated = date("Y-m-d H:i:s");
+    
+    
+    $check_query = "SELECT * FROM store_rm_receiving_data WHERE item_name = '$itemname' AND branch = '$branch' AND report_date = '$transdate' AND shift = '$shift'";
+	$result = mysqli_query($db, $check_query);
+	if (mysqli_num_rows($result) > 0) 
+	{
+		$updateQuery = "UPDATE store_rm_receiving_data SET quantity='$qty', date_updated='$datecreated', updated_by='$employeename' WHERE item_name = '$itemname' AND branch = '$branch' AND report_date = '$transdate' AND shift = '$shift'";
+	    if(mysqli_query($db, $updateQuery)) {
+	        echo "Quantity updated successfully";
+	    } else {
+	        echo "Error updating quantity";
+	    }
+	}
+	else
+	{
+		$insertQuery = "INSERT INTO store_rm_receiving_data (branch,report_date,shift,employee_name,category,item_name,item_id,quantity,date_created) VALUES ('$branch', '$transdate', '$shift', '$employeename', '$category', '$itemname', '$itemid', '$qty', '$datecreated')";
+        mysqli_query($db, $insertQuery);
+	}
+}
+
+
+if($mode == 'savermbadorder_new')
+{
+	$itemname = $_POST['itemname'];
+    $category = $functions->GetItemCategory($itemname,$db);
+    $qty = $_POST['qty'];
+    $itemid = $_POST['itemid'];
+    $branch = $_POST['branch'];
+    $transdate = $_POST['transdate'];
+    $shift = $_POST['shift'];
+
+    $employeename = $_SESSION['appstore_appnameuser'];
+    $datecreated = date("Y-m-d H:i:s");
+//    $unitprice = $functions->itemItemsPriceGet($itemid, $transdate, $db);
+    
+    
+    
+    $check_query = "SELECT * FROM store_rm_badorder_data WHERE item_name = '$itemname' AND branch = '$branch' AND report_date = '$transdate' AND shift = '$shift'";
+	$result = mysqli_query($db, $check_query);
+	if (mysqli_num_rows($result) > 0) 
+	{
+		$updateQuery = "UPDATE store_rm_badorder_data SET actual_count='$qty', date_updated='$datecreated', updated_by='$employeename' WHERE item_name = '$itemname' AND branch = '$branch' AND report_date = '$transdate' AND shift = '$shift'";
+	    if(mysqli_query($db, $updateQuery)) {
+	        echo "Quantity updated successfully";
+	    } else {
+	        echo "Error updating quantity";
+	    }
+	}
+	else
+	{
+		$insertQuery = "INSERT INTO store_rm_badorder_data (branch,report_date,shift,employee_name,category,item_name,item_id,actual_count,date_created) VALUES ('$branch', '$transdate', '$shift', '$employeename', '$category', '$itemname', '$itemid', '$qty', '$datecreated')";
+        mysqli_query($db, $insertQuery);
+	}
+}
+
+if($mode == 'savearmactualcount_new')
+{
+	$itemname = $_POST['itemname'];
+    $qty = $_POST['qty'];
+    $itemid = $_POST['itemid'];
+    $branch = $_POST['branch'];
+    $transdate = $_POST['transdate'];
+    $shift = $_POST['shift'];
+	
+	$category = $functions->GetItemCategoryNew($itemid,$db);
+	
+    $employeename = $_SESSION['appstore_appnameuser'];
+    $datecreated = date("Y-m-d H:i:s");
+    $unitprice = $functions->itemItemsPriceGet($itemid, $transdate, $db);
+    
+    $amount = $qty * $unitprice;
+        
+    $check_query = "SELECT * FROM store_rm_pcount_data WHERE item_id = '$itemid' AND branch = '$branch' AND report_date = '$transdate' AND shift = '$shift'";
+	$result = mysqli_query($db, $check_query);
+	if (mysqli_num_rows($result) > 0) 
+	{
+		$updateQuery = "UPDATE store_rm_pcount_data SET actual_count='$qty', date_updated='$datecreated', updated_by='$employeename' WHERE item_id = '$itemid' AND branch = '$branch' AND report_date = '$transdate' AND shift = '$shift'";
+	    if(mysqli_query($db, $updateQuery)) {
+	        echo "Quantity updated successfully";
+	    } else {
+	        echo "Error updating quantity";
+	    }
+	}
+	else
+	{
+		$insertQuery = "INSERT INTO store_rm_pcount_data (branch,report_date,shift,employee_name,category,item_name,item_id,actual_count,date_created) VALUES ('$branch', '$transdate', '$shift', '$employeename', '$category', '$itemname', '$itemid', '$qty', '$datecreated')";
+        mysqli_query($db, $insertQuery);
+	}
+}
+
+
+
+if($mode == 'additemtorminventory') {
+    $itemname = $_POST['itemname'];
+    $category = $_POST['category'];
+    $itemid = $_POST['itemid'];
+    $appstore_appnameuser = $_SESSION['appstore_appnameuser'];
+
+    $branch = $functions->AppBranch();
+    $transdate = $functions->GetSession('branchdate');
+    $shift = $functions->GetSession('shift');
+    $time_stamp = date('Y-m-d H:i:s'); 
+    
+    if($category == '' || $itemid == ''){
+    	echo '<script>app_alert("System Message","IDCODE or Category not exist","warning","Ok","","");</script>';
+    	exit();
+    }
+
+    
+    $checkQuery = "SELECT * FROM store_rm_inventory_record_data WHERE item_name = ? AND category = ? AND item_id = ? AND report_date = ? AND shift = ?";
+    $stmt_check = $db->prepare($checkQuery);
+    
+    if ($stmt_check) {
+        $stmt_check->bind_param("sssss", $itemname, $category, $itemid, $transdate, $shift);
+        $stmt_check->execute();
+        $result = $stmt_check->get_result();
+        
+        if ($result->num_rows > 0) {
+            echo '<script>
+                    set_function("Inventory Record","inventory_record");
+                    app_alert("System Message","Item already exists!","warning","Ok","","");
+                </script>';
+
+            $stmt_check->close();
+            exit;
+        }
+        
+        $stmt_check->close();
+    } else {
+        echo "Error preparing check statement: " . $db->error;
+        exit;
+    }
+    
+    $stmt_insert = $db->prepare("INSERT INTO store_rm_inventory_record_data (branch,report_date,shift,employee_name,category,item_name,item_id,date_created) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+    
+    if ($stmt_insert) {
+        $stmt_insert->bind_param("ssssssss", $branch, $transdate, $shift, $appstore_appnameuser, $category, $itemname, $itemid, $time_stamp);
+        
+        if ($stmt_insert->execute()) {
+            echo '<script>
+                    set_function("Inventory Record","rm_inventory_record");
+                    app_alert("System Message","Transfer Report Successfully Saved.","success","Ok","","");
+                </script>';
+        } else {
+            echo "Error: " . $stmt_insert->error;
+        }
+        
+        $stmt_insert->close();
+    } else {
+        echo "Error preparing insert statement: " . $db->error;
+    }
+}
+
+
+
+if ($mode == "save_multiple_charges") {
+
+    $branch     = $_POST['branch'] ?? '';
+    $reportdate = $_POST['reportdate'] ?? '';
+    $shift      = $_POST['shift'] ?? '';
+    $itemname   = $_POST['itemname'] ?? '';
+    $itemid     = $_POST['itemid'] ?? '';
+    $charges    = json_decode($_POST['charges'], true);
+    
+    $user 		= $_SESSION['appstore_appnameuser']?? '';
+    
+
+    if (!$branch || !$reportdate || !$shift || !$itemid || !$itemname) {
+        echo "<script>app_alert('System Message','Missing required header values!','warning')</script>";
+
+        exit;
+    }
+
+    if (!is_array($charges)) {
+        echo "<script>app_alert('System Message','No entries to save!','warning')</script>";
+        exit;
+    }
+
+	
+	if (count($charges) == 0) {
+	    $del = $db->prepare("
+	        DELETE FROM store_charges_data
+	        WHERE branch = ? AND report_date = ? AND shift = ? AND item_id = ? AND item_name = ?
+	    ");
+	    $del->bind_param("sssis", $branch, $reportdate, $shift, $itemid, $itemname);
+	    $del->execute();
+	
+	    echo "<script>app_alert('System Message','All charges deleted successfully!','success')</script>";
+	    exit;
+	}
+
+	
+    // --------------------------------------------------------------------
+    // DELETE EXISTING ENTRIES
+    // --------------------------------------------------------------------
+    $del = $db->prepare("
+        DELETE FROM store_charges_data
+        WHERE branch = ? AND report_date = ? AND shift = ?
+          AND item_id = ? AND item_name = ?
+    ");
+    $del->bind_param("sssis", $branch, $reportdate, $shift, $itemid, $itemname);
+    $del->execute();
+
+    // --------------------------------------------------------------------
+    // CATEGORY - fetch from store_items table
+    // --------------------------------------------------------------------
+    $cat_sql = $db->prepare("SELECT category_name,unit_price FROM store_items WHERE id = ?");
+    $cat_sql->bind_param("i", $itemid);
+    $cat_sql->execute();
+    $cat_res = $cat_sql->get_result()->fetch_assoc();
+    $category = $cat_res['category_name'] ?? '';
+    $unitprice = floatval($cat_res['unit_price'] ?? 0);
+
+
+    // --------------------------------------------------------------------
+    // PREPARE INSERT
+    // --------------------------------------------------------------------
+    $insert = $db->prepare("
+        INSERT INTO store_charges_data
+        (branch, report_date, shift,
+         idcode, employee_name, supervisor, slip_no,
+         category, item_name, item_id,
+         quantity, unit_price, charges_type,
+         personal_charges, inventory_charges, raw_material_charges,
+         infraction_charges, other_charges, total, remarks, date_created)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
+    ");
+
+    if (!$insert) {
+        echo "<div class='alert alert-danger'>Prepare failed: " . $db->error . "</div>";
+        exit;
+    }
+
+    foreach ($charges as $c) {
+
+        $emp_name   = $c['emp_name'];
+        $emp_id     = $c['emp_id'];
+        $type       = $c['charge_type'];
+        $slip       = $c['slip_no'];
+        $qty = floatval($c['qty'] ?? 0);
+        $remarks    = $c['remarks'];
+
+        // assign qty to the correct charge column
+        $personal   = 0;
+        $inventory  = 0;
+        $rawmat     = 0;
+        $infra      = 0;
+        $others     = 0;
+
+        if ($type == "personal_charges")      $personal  = $qty;
+        if ($type == "inventory_charges")     $inventory = $qty;
+        if ($type == "raw_material_charges")  $rawmat    = $qty;
+        if ($type == "infraction_charges")    $infra     = $qty;
+        if ($type == "other_charges")         $others    = $qty;
+
+        $total = $qty;
+
+        // ----------------------------------------------------------------
+        // BIND VALUES (correct order and types)
+        // ----------------------------------------------------------------
+        $insert->bind_param(
+		    "sssssssssiddsdddddds",
+		    $branch,
+		    $reportdate,
+		    $shift,
+		    $emp_id,
+		    $emp_name,
+		    $user,
+		    $slip,
+		    $category,
+		    $itemname,
+		    $itemid,
+		    $qty,
+		    $unitprice,
+		    $type,
+		    $personal,
+		    $inventory,
+		    $rawmat,
+		    $infra,
+		    $others,
+		    $total,
+		    $remarks
+		);
+
+        if (!$insert->execute()) {
+            echo "<div class='alert alert-danger'>MySQL Error: " . $insert->error . "</div>";
+            exit;
+        }
+    }
+
+    echo "<script>app_alert('System Message','Charges successfully saved!','success')</script>";
+    exit;
+}
+
 
 
 
@@ -252,15 +613,18 @@ if ($mode == 'savechargesemployeeauto_new') {
     $idcode = $_POST['idcode'];
     $employeename = $_POST['employee'];
     $new_chargetype = $_POST['chargetype'];
+    $charge_slip_no = trim($_POST['charge_slip_no']);
+    $remarks = trim($_POST['remarks']);
 
     $supervisor = $_SESSION['appstore_appnameuser'];
     $datecreated = date("Y-m-d H:i:s");
     $unitprice = $functions->itemItemsPriceGet($itemid, $transdate, $db);
-    
-    
-    
+
     $escaped_param = htmlspecialchars($params, ENT_QUOTES, 'UTF-8');
-	$escaped_employeename = htmlspecialchars($employeename, ENT_QUOTES, 'UTF-8');
+    $escaped_employeename = htmlspecialchars($employeename, ENT_QUOTES, 'UTF-8');
+    
+    
+    
 
     $charges_columns = [
         'inventory_charges',
@@ -270,11 +634,18 @@ if ($mode == 'savechargesemployeeauto_new') {
         'other_charges'
     ];
 
+    // Validation
     if (empty($employeename) || empty($idcode)) {
         echo '<script>app_alert("System Message", "Employee name and ID Code are required", "warning");</script>';
         exit();
     }
 
+    if (empty($new_chargetype) || empty($charge_slip_no) || empty($remarks)) {
+        echo '<script>app_alert("System Message", "Charge type, Charge Slip No., and Remarks are required.", "warning");</script>';
+        exit();
+    }
+
+    // Check existing record
     $check_query = "SELECT * FROM store_charges_data 
                     WHERE item_name = '$itemname' 
                     AND branch = '$branch' 
@@ -286,9 +657,8 @@ if ($mode == 'savechargesemployeeauto_new') {
 
         $existing = mysqli_fetch_assoc($result);
         $prev_chargetype = $existing['charges_type'];
-        $amount = $existing[$prev_chargetype];
+        $amount = $existing[$prev_chargetype] ?? 0;
 
-        
         $set_charges = "";
         foreach ($charges_columns as $col) {
             $value = ($col === $new_chargetype) ? $amount : 0;
@@ -301,54 +671,48 @@ if ($mode == 'savechargesemployeeauto_new') {
                             charges_type = '$new_chargetype',
                             idcode = '$idcode',
                             employee_name = '$employeename',
+                            slip_no = '$charge_slip_no',
+                            remarks = '$remarks',
                             date_updated = '$datecreated',
-                            updated_by = '$supervisor' 
+                            updated_by = '$supervisor'
                         WHERE item_name = '$itemname' 
                         AND branch = '$branch' 
                         AND report_date = '$transdate' 
                         AND shift = '$shift'";
 
         if (mysqli_query($db, $updateQuery)) {
-                  
             echo "<script>
-            	var params = '{$escaped_param}';
-			    $('#additem').fadeOut();
-			    $('#chargesemployeename_' + params).text('{$escaped_employeename}');
-			    app_alert('System Message', 'Data has been successfully saved and recorded.', 'success');
-			</script>";
-      
-            
+                var params = '{$escaped_param}';
+                $('#additem').fadeOut();
+                $('#chargesemployeename_' + params).text('{$escaped_employeename}');
+                app_alert('System Message', 'Data has been successfully updated.', 'success');
+            </script>";
         } else {
             echo '<script>app_alert("System Message", "Error updating record: ' . $db->error . '", "error");</script>';
         }
 
     } else {
+        // default 0 since no previous amount exists
+        $amount = 0;  
 
         $charges_values = [];
         foreach ($charges_columns as $col) {
             $charges_values[$col] = ($col === $new_chargetype) ? $amount : 0;
         }
-                        
-       $insertQuery = "INSERT INTO store_charges_data 
-			    (branch, report_date, shift, idcode, employee_name, supervisor, category, item_name, item_id, unit_price, charges_type, date_created) 
-			    VALUES 
-			    ('$branch', '$transdate', '$shift', '$idcode', '$employeename', '$supervisor', '$category', '$itemname', '$itemid', '$unitprice', '$new_chargetype', '$datecreated')";
-						                        
+
+        $insertQuery = "INSERT INTO store_charges_data 
+            (branch, report_date, shift, idcode, employee_name, supervisor, category, item_name, item_id, unit_price, charges_type, slip_no, remarks, date_created)
+            VALUES 
+            ('$branch', '$transdate', '$shift', '$idcode', '$employeename', '$supervisor', '$category', '$itemname', '$itemid', '$unitprice', '$new_chargetype', '$charge_slip_no', '$remarks', '$datecreated')";
 
         if (mysqli_query($db, $insertQuery)) {
-        
-			
-			echo "<script>
-			    var params = '{$escaped_param}';
-			    $('#additem').fadeOut();
-			    $('#charges_' + params).css('background-color', '#f7e9d5').attr('contenteditable', 'true').text('0.00');
-			    $('#chargesemployeename_' + params).text('{$escaped_employeename}');
-			    app_alert('System Message', 'Employee charge has been successfully saved', 'success');
-			</script>";
-      
-			
-
-    	
+            echo "<script>
+                var params = '{$escaped_param}';
+                $('#additem').fadeOut();
+                $('#charges_' + params).css('background-color', '#f7e9d5').attr('contenteditable', 'true').text('0.00');
+                $('#chargesemployeename_' + params).text('{$escaped_employeename}');
+                app_alert('System Message', 'Employee charge has been successfully saved.', 'success');
+            </script>";
         } else {
             echo '<script>app_alert("System Message", "Error inserting record: ' . $db->error . '", "error");</script>';
         }
@@ -3527,7 +3891,7 @@ if($mode == 'savermtransfer')
 			echo $functions->GetMessageExist($itemname.' is already exists on this shift');
 			exit();
 		} else {
-			$transferdata[] = "('$to_branch','$date','$shift','$timecovered','$person','$encoder','$category','$item_id','$itemname','$weight','$units','$from_branch','$time_stamp')";
+			$transferdata[] = "('$from_branch','$date','$shift','$timecovered','$person','$encoder','$category','$item_id','$itemname','$weight','$units','$to_branch','$from_branch','$time_stamp')";
 		}
 	}
 	if($transfermode == 'TRANSFER OUT')
@@ -3539,10 +3903,10 @@ if($mode == 'savermtransfer')
 			echo $functions->GetMessageExist($itemname.' is already exists on this shift');
 			exit();
 		} else {
-			$transferdata[] = "('$from_branch','$date','$shift','$timecovered','$person','$encoder','$category','$item_id','$itemname','$weight','$units','$to_branch','$time_stamp')";
+			$transferdata[] = "('$from_branch','$date','$shift','$timecovered','$person','$encoder','$category','$item_id','$itemname','$weight','$units','$from_branch','$to_branch','$time_stamp')";
 		}
 	}
-	$query = "INSERT INTO store_rm_transfer_data (branch,report_date,shift,time_covered,employee_name,supervisor,category,item_id,item_name,weight,units,transfer_to,date_created)";
+	$query = "INSERT INTO store_rm_transfer_data (branch,report_date,shift,time_covered,employee_name,supervisor,category,item_id,item_name,weight,units,transfer_from,transfer_to,date_created)";
 	$query .= "VALUES ".implode(', ', $transferdata);
 	if ($db->query($query) === TRUE)
 	{
@@ -3564,7 +3928,7 @@ if($mode == 'savermtransfer')
 			$form_type = "RAWMATS";
 			if($_SESSION["OFFLINE_MODE"] == 0)
 			{
-				 $functions->iTransferOutRM($rowid,$branch,$date,$shift,$timecovered,$person,$encoder,$category,$item_id,$itemname,$weight,$units,$to_branch,$time_stamp,$person,$time_stamp,$conn);
+//				 $functions->iTransferOutRM($rowid,$branch,$date,$shift,$timecovered,$person,$encoder,$category,$item_id,$itemname,$weight,$units,$to_branch,$time_stamp,$person,$time_stamp,$conn);
 			}
 		}		
 	} else {
@@ -5481,7 +5845,7 @@ if($mode == 'updatetransfer')
 	}
 	
 	$update = "branch='$branch',report_date='$date',shift='$shift',time_covered ='$timecovered', employee_name='$person',supervisor='$encoder',item_id='$item_id',item_name='$itemname',quantity='$quantity',
-	unit_price='$unit_price',amount='$amount',transfer_to='$to_branch',date_updated ='$time_stamp',updated_by ='$updated_by'";
+	unit_price='$unit_price',amount='$amount',transfer_from='$branch',transfer_to='$to_branch',date_updated ='$time_stamp',updated_by ='$updated_by'";
 
 	$queryDataUpdate = "UPDATE store_transfer_data SET $update WHERE id='$rowid'";
 	if ($db->query($queryDataUpdate) === TRUE)
@@ -5561,6 +5925,8 @@ if($mode == 'savetransfer')
 		$item_id = $functions->GetItemID($itemname,$db);
 	}
 	
+	
+	
 	if($transfermode == 'TRANSFER IN')
 	{
 		$from_branch = $_POST['branch'];
@@ -5570,7 +5936,7 @@ if($mode == 'savetransfer')
 			echo $functions->GetMessageExist($itemname.' is already exists on this shift');
 			exit();
 		} else {
-			$transferdata[] = "('$to_branch','$date','$shift','$timecovered','$person','$encoder','$category','$itemid','$itemname','$quantity','$unit_price','$amount','$from_branch','$time_stamp')";
+			$transferdata[] = "('$from_branch','$date','$shift','$timecovered','$person','$encoder','$category','$itemid','$itemname','$quantity','$unit_price','$amount','$to_branch','$from_branch','$time_stamp')";
 		}
 	}
 	if($transfermode == 'TRANSFER OUT')
@@ -5582,11 +5948,11 @@ if($mode == 'savetransfer')
 			echo $functions->GetMessageExist($itemname.' is already exists on this shift');
 			exit();
 		} else {
-			$transferdata[] = "('$from_branch','$date','$shift','$timecovered','$person','$encoder','$category','$itemid','$itemname','$quantity','$unit_price','$amount','$to_branch','$time_stamp')";
+			$transferdata[] = "('$from_branch','$date','$shift','$timecovered','$person','$encoder','$category','$itemid','$itemname','$quantity','$unit_price','$amount','$from_branch','$to_branch','$time_stamp')";
 		}
 	}
 	
-	$query = "INSERT INTO store_transfer_data (branch,report_date,shift,time_covered,employee_name,supervisor,category,item_id,item_name,quantity,unit_price,amount,transfer_to,date_created)";
+	$query = "INSERT INTO store_transfer_data (branch,report_date,shift,time_covered,employee_name,supervisor,category,item_id,item_name,quantity,unit_price,amount,transfer_from,transfer_to,date_created)";
 	$query .= "VALUES ".implode(', ', $transferdata);
 	if ($db->query($query) === TRUE)
 	{

@@ -20,10 +20,6 @@ $connwms = connectSafe(CON_HOST, CON_USER, CON_PASSWORD, 'application_data');
 
 $brrr = new brrr;
 
-
-
-
-
 $branch = $brrr->GetSession('branch');
 $reportdate = $brrr->GetSession('branchdate');
 $formattedDate = date("F j, Y", strtotime($reportdate));
@@ -34,19 +30,19 @@ $dailytotalsales = $brrr->salessummary($branch, $reportdate, $db);
 $dailytotalsales_bakersonly = $brrr->salessummary_bakeronly($branch, $reportdate, $db);
 
 
-$bakercost = $brrr->bakercostviadate($branch, $reportdate, $reportdate, $db);
+$bakercost = $brrr->bakercostviadate($branch, $reportdate, $reportdate, $db, $conn);
 $bakerratio = ($dailytotalsales_bakersonly != 0) ? ($bakercost / $dailytotalsales_bakersonly) * 100: 0;
+
  
-$sellingcost = $brrr->sellingcost($branch, $reportdate, $reportdate, $db);
+$sellingcost = $brrr->sellingcost($branch, $reportdate, $reportdate, $db, $conn);
 $sellingratio = ($dailytotalsales != 0) ? ($sellingcost / $dailytotalsales) * 100: 0;
 
 
+
 $month13costbaker = $bakercost / 12;
-//$month13costbaker = $brrr->month13baker($branch, $reportdate, $db);
 $month13ratiobaker = ($dailytotalsales_bakersonly != 0) ? ($month13costbaker / $dailytotalsales_bakersonly) * 100: 0;
 
 $month13costselling = $sellingcost / 12;
-//$month13costselling = $brrr->month13selling($branch, $reportdate, $db);
 $month13ratioselling = ($dailytotalsales != 0) ? ($month13costselling / $dailytotalsales) * 100: 0;
 
 
@@ -60,11 +56,17 @@ foreach ($idcodes as $idcode) {
     $daily_salary = $brrr->salaryemployeemonthly('salary_daily', $idcode, $db);
    	$totalsalary += $daily_salary;
 }
+
+
 $salary = $totalsalary; 
 
 
-$mandatories = $brrr->mandatories($salary, $db);
-
+if($IS_ONLINE)
+{
+	$mandatories = $brrr->mandatories($salary, $conn);
+} else {
+	$mandatories = 0;
+}
 
 $mandatories_cost = $totalheadcount * $mandatories;
 $mandatories_ratio = ($dailytotalsales != 0) ? ($mandatories_cost / $dailytotalsales) * 100 : 0;
@@ -77,16 +79,29 @@ $agencyfee_ratio = ($dailytotalsales != 0) ? ($agencyfeecost / $dailytotalsales)
 
 
 $IS_ONLINE = ($_SESSION['IS_ONLINE'] === 1 && $conn && $connwms);
+
 if ($IS_ONLINE)
 {
+
+	$bakersot = $brrr->getBakerIDs($branch, $reportdate, $reportdate, $db);
+	$salariesbakerot = $brrr->getSalaries($bakersot, $db);
+	$totalbakersot = $brrr->computeBakerOTCost($bakersot, $salariesbakerot, $reportdate, $reportdate, $conn);
+	$bakerotratio = ($dailytotalsales != 0) ? ($totalbakersot / $dailytotalsales) * 100: 0;
+	
+	
+	$sellingsot = $brrr->getSellingIDs($branch, $reportdate, $reportdate, $db);
+	$salariessellingot = $brrr->getSellingSalaries($sellingsot, $db);
+	$totalsellingot = $brrr->computeSellingOTCost($sellingsot, $salariessellingot, $reportdate, $reportdate, $conn);
+	$sellingotratio = ($dailytotalsales != 0) ? ($totalsellingot / $dailytotalsales) * 100: 0;
+
+
+
 	
     $cogs_data = $brrr->summaryCogs($branch, $reportdate, $reportdate, $conn);
 	$totalcogs = $cogs_data['total_cogs'];
 	$breakdown = $cogs_data['breakdown'];
 	
 	$dailycogs = $totalcogs;
-	
-	
 	
 	
 	// WMS
@@ -143,7 +158,7 @@ if ($IS_ONLINE)
 	}
 
 
-    
+    $totalsalariesandbenefitsbudget = $brrr->categorySelectValue('default_ratio', 'Salaries and Benefits', $conn);
 }
 else
 {
@@ -151,6 +166,11 @@ else
 	$dailycogs = 0;
     $ho_expense_data = [];
     $wms_expense_data = [];
+    
+    $bakerotratio = 0;
+	$sellingotratio = 0;
+	$totalsalariesandbenefitsbudget = 0;
+
 }
 
 
@@ -159,9 +179,6 @@ else
 
 $budgetperformance = ($dailytotalsales != 0) ? ($dailycogs / $dailytotalsales) * 100: 0;
 
-
-
-$totalsalariesandbenefitsbudget = $brrr->categorySelectValue('default_ratio', 'Salaries and Benefits', $db);
 
 $totalsalariesandbenefitscost = $bakercost + $sellingcost + $month13costbaker + $month13costselling + $mandatories_cost + $agencyfeecost;
 $totalsalariesandbenefitsratio = $bakerratio + $sellingratio + $month13ratiobaker + $month13ratioselling + $mandatories_ratio + $agencyfee_ratio;
@@ -184,11 +201,21 @@ while ($row = $result->fetch_assoc()) {
 
 
 $budget_ratios = [];
-$cat_query = "SELECT category_name, default_ratio FROM store_brrr_category WHERE is_active = 1";
-$cat_result = $db->query($cat_query);
-while ($cat = $cat_result->fetch_assoc()) {
-    $budget_ratios[$cat['category_name']] = (float)$cat['default_ratio'];
+
+if ($IS_ONLINE) 
+{
+    $cat_query = "SELECT category_name, default_ratio FROM store_brrr_category WHERE is_active = 1";
+    if ($cat_result = $conn->query($cat_query)) {
+        while ($cat = $cat_result->fetch_assoc()) {
+            $budget_ratios[$cat['category_name']] = (float)$cat['default_ratio'];
+        }
+    }
+} else {
+
+    $budget_ratios = [];
 }
+
+
 
 
 $bakersZero = $brrr->getZeroSalaryBakers($branch, $reportdate, $reportdate, $db);
@@ -235,7 +262,7 @@ if (!empty($sellersZero)) {
 </div>
 
 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-    <h4 style="margin: 0;"><strong>Budget Ratios vs Revenue Report</strong></h4>
+    <h4 style="margin: 0;"><strong>Budget Ratios vs Revenue Reports</strong></h4>
     <div style="text-align: left; width: 250px;">
         <p style="margin: 0;"><strong>Daily Sales:</strong> <?= number_format($dailytotalsales, 2) ?></p>
     </div>
@@ -251,7 +278,7 @@ if (!empty($sellersZero)) {
 <table class="table table-bordered" style="width: 100%; border-collapse: collapse;">
     <thead>
         <tr style="font-weight:bold">
-            <td colspan="2">Salaries & Benefits</td>
+            <td colspan="2">Salaries &amp; Benefits</td>
             <td colspan="2"></td>
             <td>Ratio</td>
             <td>Budget</td>
@@ -293,7 +320,7 @@ if (!empty($sellersZero)) {
 		<tr>
             <td></td>
             <td colspan="3" title="BAKER's OT">Baker's OT</td>
-            <td>%</td>
+            <td><?= number_format($bakerotratio,3)?>%</td>
             <td></td>
             <td></td>
             <td></td>
@@ -302,7 +329,7 @@ if (!empty($sellersZero)) {
         <tr>
             <td></td>
             <td colspan="3" title="SELLING's OT">Selling's OT</td>
-            <td>%</td>
+            <td><?= number_format($sellingotratio,3)?>%</td>
             <td></td>
             <td></td>
             <td></td>
@@ -506,11 +533,11 @@ if (!empty($sellersZero)) {
 		
 		<tr style='border-top:2px solid gray'>
 			<td colspan='4'></td>
-			<td></td>
-			<td><?= number_format($totalsalariesandbenefitsbudget + $totalbudget, 3)?></td>
+			<td><?= number_format(($bakerratio+$sellingratio+$bakerotratio+$sellingotratio+$month13ratiobaker+$month13ratioselling+$mandatories_ratio+$agencyfee_ratio),3)?>%</td>
+			<td><?= number_format($totalsalariesandbenefitsbudget + $totalbudget, 3)?>%</td>
 			<td><?= number_format($totalsalariesandbenefitscost + $totalexpense, 2)?></td>
 			<td><?= number_format($totalsalariesandbenefitsratio + $totalactualratio, 3)?>%</td>
-			<td style="<?= $overallvarianceColor?>"><?= number_format($overallvariance, 3)?></td>
+			<td style="<?= $overallvarianceColor?>"><?= number_format($overallvariance, 3)?>%</td>
 		</tr>
 		    
 		   

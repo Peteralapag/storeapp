@@ -198,40 +198,40 @@ if($result->num_rows > 0)
 	</tr>
 <?php } 
 
-	$rchb = $function->getSumsummaryBreakdown('ROSE CLASSIC HOT BREAD',$branch_name,$branch_date,$branch_shift,$db) - $function->GetDiscountTypeCategorBadge('ROSE CLASSIC HOT BREAD',$branch_name,$branch_date,$shift,$db);
-	$rheb = $function->getSumsummaryBreakdown('ROSE HIGH-END BREADS',$branch_name,$branch_date,$branch_shift,$db) - $function->GetDiscountTypeCategorBadge('ROSE HIGH-END BREADS',$branch_name,$branch_date,$shift,$db);
-	$rbp = $function->getSumsummaryBreakdown('ROSE BINALOT & PASALUBONG',$branch_name,$branch_date,$branch_shift,$db) - $function->GetDiscountTypeCategorBadge('ROSE BINALOT & PASALUBONG',$branch_name,$branch_date,$shift,$db);
-	$rnd = $function->getSumsummaryBreakdown('ROSE NUTRI-DENSE',$branch_name,$branch_date,$branch_shift,$db) - $function->GetDiscountTypeCategorBadge('ROSE NUTRI-DENSE',$branch_name,$branch_date,$shift,$db);
-	$rtl = $function->getSumsummaryBreakdown('ROSE TASTY LOAF',$branch_name,$branch_date,$branch_shift,$db) - $function->GetDiscountTypeCategorBadge('ROSE TASTY LOAF',$branch_name,$branch_date,$shift,$db);
-	$rcs = $function->getSumsummaryBreakdown('ROSE CLASSIC SPECIAL',$branch_name,$branch_date,$branch_shift,$db) - $function->GetDiscountTypeCategorBadge('ROSE CLASSIC SPECIAL',$branch_name,$branch_date,$shift,$db);
-	$atcc = $function->getSumsummaryBreakdown('ALL TIME CAKE (CLASSIC)',$branch_name,$branch_date,$branch_shift,$db) - $function->GetDiscountTypeCategorBadge('ALL TIME CAKE (CLASSIC)',$branch_name,$branch_date,$shift,$db);
-	$ccf = $function->getSumsummaryBreakdown('CELEBRATION CAKES (FLAGSLIP)',$branch_name,$branch_date,$branch_shift,$db) - $function->GetDiscountTypeCategorBadge('CELEBRATION CAKES (FLAGSLIP)',$branch_name,$branch_date,$shift,$db);
-	$pche = $function->getSumsummaryBreakdown('PREMIUM CAKES (HIGH-END)',$branch_name,$branch_date,$branch_shift,$db) - $function->GetDiscountTypeCategorBadge('PREMIUM CAKES (HIGH-END)',$branch_name,$branch_date,$shift,$db);
-	$hec = $function->getSumsummaryBreakdown('HIGH-END COFFEE',$branch_name,$branch_date,$branch_shift,$db) - $function->GetDiscountTypeCategorBadge('HIGH-END COFFEE',$branch_name,$branch_date,$shift,$db);
-	$fgfrap = $function->getSumsummaryBreakdown('FGFRAP',$branch_name,$branch_date,$branch_shift,$db) - $function->GetDiscountTypeCategorBadge('FGFRAP',$branch_name,$branch_date,$shift,$db);
+	$rchb = (float)$function->getSumsummaryBreakdown('ROSE CLASSIC HOT BREAD',$branch_name,$branch_date,$branch_shift,$db) - (float)$function->GetDiscountTypeCategorBadge('ROSE CLASSIC HOT BREAD',$branch_name,$branch_date,$shift,$db);
+	$rheb = (float)$function->getSumsummaryBreakdown('ROSE HIGH-END BREADS',$branch_name,$branch_date,$branch_shift,$db) - (float)$function->GetDiscountTypeCategorBadge('ROSE HIGH-END BREADS',$branch_name,$branch_date,$shift,$db);
+	$rbp = (float)$function->getSumsummaryBreakdown('ROSE BINALOT & PASALUBONG',$branch_name,$branch_date,$branch_shift,$db) - (float)$function->GetDiscountTypeCategorBadge('ROSE BINALOT & PASALUBONG',$branch_name,$branch_date,$shift,$db);
+	$rnd = (float)$function->getSumsummaryBreakdown('ROSE NUTRI-DENSE',$branch_name,$branch_date,$branch_shift,$db) - (float)$function->GetDiscountTypeCategorBadge('ROSE NUTRI-DENSE',$branch_name,$branch_date,$shift,$db);
+	$rtl = (float)$function->getSumsummaryBreakdown('ROSE TASTY LOAF',$branch_name,$branch_date,$branch_shift,$db) - (float)$function->GetDiscountTypeCategorBadge('ROSE TASTY LOAF',$branch_name,$branch_date,$shift,$db);
+	$rcs = (float)$function->getSumsummaryBreakdown('ROSE CLASSIC SPECIAL',$branch_name,$branch_date,$branch_shift,$db) - (float)$function->GetDiscountTypeCategorBadge('ROSE CLASSIC SPECIAL',$branch_name,$branch_date,$shift,$db);
+	$atcc = (float)$function->getSumsummaryBreakdown('ALL TIME CAKE (CLASSIC)',$branch_name,$branch_date,$branch_shift,$db) - (float)$function->GetDiscountTypeCategorBadge('ALL TIME CAKE (CLASSIC)',$branch_name,$branch_date,$shift,$db);
+	$ccf = (float)$function->getSumsummaryBreakdown('CELEBRATION CAKES (FLAGSLIP)',$branch_name,$branch_date,$branch_shift,$db) - (float)$function->GetDiscountTypeCategorBadge('CELEBRATION CAKES (FLAGSLIP)',$branch_name,$branch_date,$shift,$db);
+	$pche = (float)$function->getSumsummaryBreakdown('PREMIUM CAKES (HIGH-END)',$branch_name,$branch_date,$branch_shift,$db) - (float)$function->GetDiscountTypeCategorBadge('PREMIUM CAKES (HIGH-END)',$branch_name,$branch_date,$shift,$db);
+	$hec = (float)$function->getSumsummaryBreakdown('HIGH-END COFFEE',$branch_name,$branch_date,$branch_shift,$db) - (float)$function->GetDiscountTypeCategorBadge('HIGH-END COFFEE',$branch_name,$branch_date,$shift,$db);
+	$fgfrap = (float)$function->getSumsummaryBreakdown('FGFRAP',$branch_name,$branch_date,$branch_shift,$db) - (float)$function->GetDiscountTypeCategorBadge('FGFRAP',$branch_name,$branch_date,$shift,$db);
 
 
-	$breads = $function->getSumsummaryBreakdown('BREADS',$branch_name,$branch_date,$branch_shift,$db) - $function->GetDiscountTypeCategorBadge('BREADS',$branch_name,$branch_date,$shift,$db);
-	$cakes = $function->getSumsummaryBreakdown('CAKES',$branch_name,$branch_date,$branch_shift,$db) - $function->GetDiscountTypeCategorBadge('CAKES',$branch_name,$branch_date,$shift,$db);
-	$specials = $function->getSumsummaryBreakdown('SPECIALS',$branch_name,$branch_date,$branch_shift,$db) - $function->GetDiscountTypeCategorBadge('SPECIALS',$branch_name,$branch_date,$shift,$db);
-	$beverages = $function->getSumsummaryBreakdown('BEVERAGES',$branch_name,$branch_date,$branch_shift,$db) - $function->GetDiscountTypeCategorBadge('BEVERAGES',$branch_name,$branch_date,$shift,$db);	
-	$bottledwater = $function->getSumsummaryBreakdown('BOTTLED WATER',$branch_name,$branch_date,$branch_shift,$db) - $function->GetDiscountTypeCategorBadge('BOTTLED WATER',$branch_name,$branch_date,$shift,$db);
-	$icecream = $function->getSumsummaryBreakdown('ICE CREAM',$branch_name,$branch_date,$branch_shift,$db) - $function->GetDiscountTypeCategorBadge('ICE CREAM',$branch_name,$branch_date,$shift,$db);
-	$merchandiseothers = $function->getSumsummaryBreakdown('MERCHANDISE OTHERS',$branch_name,$branch_date,$branch_shift,$db) - $function->GetDiscountTypeCategorBadge('MERCHANDISE OTHERS',$branch_name,$branch_date,$shift,$db);
-	$coffee = $function->getSumsummaryBreakdown('COFFEE',$branch_name,$branch_date,$branch_shift,$db) - $function->GetDiscountTypeCategorBadge('COFFEE',$branch_name,$branch_date,$shift,$db);
-	$milktea = $function->getSumsummaryBreakdown('MILK TEA',$branch_name,$branch_date,$branch_shift,$db) - $function->GetDiscountTypeCategorBadge('MILK TEA',$branch_name,$branch_date,$shift,$db);
+	$breads = (float)$function->getSumsummaryBreakdown('BREADS',$branch_name,$branch_date,$branch_shift,$db) - (float)$function->GetDiscountTypeCategorBadge('BREADS',$branch_name,$branch_date,$shift,$db);
+	$cakes = (float)$function->getSumsummaryBreakdown('CAKES',$branch_name,$branch_date,$branch_shift,$db) - (float)$function->GetDiscountTypeCategorBadge('CAKES',$branch_name,$branch_date,$shift,$db);
+	$specials = (float)$function->getSumsummaryBreakdown('SPECIALS',$branch_name,$branch_date,$branch_shift,$db) - (float)$function->GetDiscountTypeCategorBadge('SPECIALS',$branch_name,$branch_date,$shift,$db);
+	$beverages = (float)$function->getSumsummaryBreakdown('BEVERAGES',$branch_name,$branch_date,$branch_shift,$db) - (float)$function->GetDiscountTypeCategorBadge('BEVERAGES',$branch_name,$branch_date,$shift,$db);	
+	$bottledwater = (float)$function->getSumsummaryBreakdown('BOTTLED WATER',$branch_name,$branch_date,$branch_shift,$db) - (float)$function->GetDiscountTypeCategorBadge('BOTTLED WATER',$branch_name,$branch_date,$shift,$db);
+	$icecream = (float)$function->getSumsummaryBreakdown('ICE CREAM',$branch_name,$branch_date,$branch_shift,$db) - (float)$function->GetDiscountTypeCategorBadge('ICE CREAM',$branch_name,$branch_date,$shift,$db);
+	$merchandiseothers = (float)$function->getSumsummaryBreakdown('MERCHANDISE OTHERS',$branch_name,$branch_date,$branch_shift,$db) - (float)$function->GetDiscountTypeCategorBadge('MERCHANDISE OTHERS',$branch_name,$branch_date,$shift,$db);
+	$coffee = (float)$function->getSumsummaryBreakdown('COFFEE',$branch_name,$branch_date,$branch_shift,$db) - (float)$function->GetDiscountTypeCategorBadge('COFFEE',$branch_name,$branch_date,$shift,$db);
+	$milktea = (float)$function->getSumsummaryBreakdown('MILK TEA',$branch_name,$branch_date,$branch_shift,$db) - (float)$function->GetDiscountTypeCategorBadge('MILK TEA',$branch_name,$branch_date,$shift,$db);
 	
 	$breakdowntotal = ($rchb +	$rheb +	$rbp + $rnd + $rtl + $rcs +	$atcc +	$ccf +	$pche +	$hec +	$fgfrap + $breads + $cakes + $specials + $beverages + $bottledwater + $icecream + $merchandiseothers + $coffee + $milktea);
 	
-	$gbreads = $function->getGcashBreakdown('BREADS',$branch_name,$branch_date,$branch_shift,$db) - $function->GetDiscountTypeCategorBadge('BREADS',$branch_name,$branch_date,$shift,$db);
-	$gcakes = $function->getGcashBreakdown('CAKES',$branch_name,$branch_date,$branch_shift,$db) - $function->GetDiscountTypeCategorBadge('CAKES',$branch_name,$branch_date,$shift,$db);
-	$gspecials = $function->getGcashBreakdown('SPECIALS',$branch_name,$branch_date,$branch_shift,$db) - $function->GetDiscountTypeCategorBadge('SPECIALS',$branch_name,$branch_date,$shift,$db);
-	$gbeverages = $function->getGcashBreakdown('BEVERAGES',$branch_name,$branch_date,$branch_shift,$db) - $function->GetDiscountTypeCategorBadge('BEVERAGES',$branch_name,$branch_date,$shift,$db);	
-	$gbottledwater = $function->getGcashBreakdown('BOTTLED WATER',$branch_name,$branch_date,$branch_shift,$db) - $function->GetDiscountTypeCategorBadge('BOTTLED WATER',$branch_name,$branch_date,$shift,$db);
-	$gicecream = $function->getGcashBreakdown('ICE CREAM',$branch_name,$branch_date,$branch_shift,$db) - $function->GetDiscountTypeCategorBadge('ICE CREAM',$branch_name,$branch_date,$shift,$db);
-	$gmerchandiseothers = $function->getGcashBreakdown('MERCHANDISE OTHERS',$branch_name,$branch_date,$branch_shift,$db) - $function->GetDiscountTypeCategorBadge('MERCHANDISE OTHERS',$branch_name,$branch_date,$shift,$db);
-	$gcoffee = $function->getGcashBreakdown('COFFEE',$branch_name,$branch_date,$branch_shift,$db) - $function->GetDiscountTypeCategorBadge('COFFEE',$branch_name,$branch_date,$shift,$db);
-	$gmilktea = $function->getGcashBreakdown('MILK TEA',$branch_name,$branch_date,$branch_shift,$db) - $function->GetDiscountTypeCategorBadge('MILK TEA',$branch_name,$branch_date,$shift,$db);
+	$gbreads = (float)$function->getGcashBreakdown('BREADS',$branch_name,$branch_date,$branch_shift,$db) - (float)$function->GetDiscountTypeCategorBadge('BREADS',$branch_name,$branch_date,$shift,$db);
+	$gcakes = (float)$function->getGcashBreakdown('CAKES',$branch_name,$branch_date,$branch_shift,$db) - (float)$function->GetDiscountTypeCategorBadge('CAKES',$branch_name,$branch_date,$shift,$db);
+	$gspecials = (float)$function->getGcashBreakdown('SPECIALS',$branch_name,$branch_date,$branch_shift,$db) - (float)$function->GetDiscountTypeCategorBadge('SPECIALS',$branch_name,$branch_date,$shift,$db);
+	$gbeverages = (float)$function->getGcashBreakdown('BEVERAGES',$branch_name,$branch_date,$branch_shift,$db) - (float)$function->GetDiscountTypeCategorBadge('BEVERAGES',$branch_name,$branch_date,$shift,$db);	
+	$gbottledwater = (float)$function->getGcashBreakdown('BOTTLED WATER',$branch_name,$branch_date,$branch_shift,$db) - (float)$function->GetDiscountTypeCategorBadge('BOTTLED WATER',$branch_name,$branch_date,$shift,$db);
+	$gicecream = (float)$function->getGcashBreakdown('ICE CREAM',$branch_name,$branch_date,$branch_shift,$db) - (float)$function->GetDiscountTypeCategorBadge('ICE CREAM',$branch_name,$branch_date,$shift,$db);
+	$gmerchandiseothers = (float)$function->getGcashBreakdown('MERCHANDISE OTHERS',$branch_name,$branch_date,$branch_shift,$db) - (float)$function->GetDiscountTypeCategorBadge('MERCHANDISE OTHERS',$branch_name,$branch_date,$shift,$db);
+	$gcoffee = (float)$function->getGcashBreakdown('COFFEE',$branch_name,$branch_date,$branch_shift,$db) - (float)$function->GetDiscountTypeCategorBadge('COFFEE',$branch_name,$branch_date,$shift,$db);
+	$gmilktea = (float)$function->getGcashBreakdown('MILK TEA',$branch_name,$branch_date,$branch_shift,$db) - (float)$function->GetDiscountTypeCategorBadge('MILK TEA',$branch_name,$branch_date,$shift,$db);
 	$gbreakdowntotal = ($breads + $cakes + $specials + $beverages + $bottledwater + $icecream + $merchandiseothers + $coffee + $milktea);
 ?>
 	<tr class="td-total">

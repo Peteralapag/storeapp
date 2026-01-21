@@ -24,6 +24,34 @@ $transdate = $functions->GetSession('branchdate');
 $shift = $functions->GetSession('shift');
 $time_stamp = date("Y-m-d H:i:s");
 
+if($mode == 'rm_inventory_record')
+{
+
+	$myShifting = $_SESSION['appstore_shifting'];
+	$prevCutPcountStatus = $myShifting == 2? $FunctionForms->twoShiftingPostingStatusGet($shift, $transdate, $branch, $db): $FunctionForms->threeShiftingPostingStatusGet($shift, $transdate, $branch, $db);
+	$itemListTable = $functions->checkItemListifExistTable($db);
+
+	if($itemListTable != 1){
+		print_r('<script>app_alert("System Message","We are unable to post if store_items table not exist","warning","Ok","","");$("#" + sessionStorage.navcount).click();</script>');
+		exit();
+	}
+	
+/*		
+	if($prevCutPcountStatus == 0){
+		print_r('<script>app_alert("System Message","We are unable to provide a summary without posting previous pcount","warning","Ok","","");$("#" + sessionStorage.navcount).click();</script>');
+		exit();
+	}
+*/
+
+	include '../class/rm_inventory_record_poster.class.php';
+	$inventoryRecords = new inventoryRecords;
+	$postThisModules = ['rm_receiving','rm_transferin','rm_transferout','rm_badorder','rm_pcount','rm_summary'];
+	foreach($postThisModules as $module){
+		$inventoryRecords->$module($branch,$transdate,$shift,$db);
+	}
+
+}
+
 if($mode == 'inventory_record')
 {
 	$myShifting = $_SESSION['appstore_shifting'];
@@ -1285,80 +1313,84 @@ if($mode == 'rm_receiving')
 	/*  ---------------------------------------------- */
 }
 /* ###################################### RAWMATS TRANSFER SUMMARY ###################################### */
-if($mode == 'rm_transfer')//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-{
-	$table = "store_".$mode."_data";
-	
-	/*  ---------------------------------------------- */
-	$query ="SELECT * FROM $table WHERE branch='$branch' AND shift='$shift' AND report_date='$transdate' AND item_id!=''";  
-	$result = mysqli_query($db, $query);  
-	$rowcount=mysqli_num_rows($result);
-	$x=0;$datain=array();$dataup=array();$save = 0;
-	while($ROW = mysqli_fetch_array($result)) 
-	{
-		$x++;		
-		$rowid = $ROW['id'];
-		$branch = $ROW['branch'];
-		$report_date = $ROW['report_date'];
-		$shift = $ROW['shift'];
-		$time_covered = $ROW['time_covered'];
-		$person = $ROW['employee_name'];
-		$encoder = $ROW['supervisor'];
-		$category = $ROW['category'];
-		$item_id = $ROW['item_id'];
-		$item_name = $ROW['item_name'];
-		$weight = $ROW['weight'] + $functions->GetRMTransferOutQtySum($branch,$transdate,$shift,$item_id,$db);
-		$units = $ROW['units'];
-		$transfer_to = $ROW['transfer_to'];
-		$date_created = $ROW['date_created'];
-		$date_updated = $ROW['date_updated'];
-		$updated_by = $ROW['updated_by'];
-		$posted = $ROW['posted'];
-		$status = $ROW['status'];
 
-		$QUERY ="SELECT * FROM store_rm_summary_data WHERE branch='$branch' AND report_date='$transdate' AND shift='$shift' AND item_id='$item_id'";  
-		$RESULT = mysqli_query($db, $QUERY);  
-		if($RESULT->num_rows > 0)
-		{
-			$queryDataUpdates = "UPDATE store_rm_summary_data SET transfer_out='$weight' WHERE branch='$branch' AND report_date='$transdate' AND shift='$shift' AND item_id='$item_id'";
-			if ($db->query($queryDataUpdates) === TRUE)	{
-				if($_SESSION["OFFLINE_MODE"] == 0)
-				{
-					$functions->iTransferOutRM($rowid,$branch,$report_date,$shift,$time_covered,$person,$encoder,$category,$item_id,$item_name,$weight,$units,$transfer_to,$date_created,$updated_by,$date_updated,$conn);
-				}				
-				$functions->setUpdatePosting($table,$branch,$transdate,$shift,$rowid,$db);
-			}
-			else
-			{
-				echo '<script>app_alert("System Message","'.$db->error.'","warning");</script>';
-			}
-		} else {
-			$queryDataInsert = "INSERT INTO store_rm_summary_data (branch,report_date,shift,time_covered,item_id,item_name,transfer_out,date_created)
-			VALUES ('$branch','$transdate','$shift','$time_covered','$item_id','$item_name','$weight','$time_stamp')";
-			if ($db->query($queryDataInsert) === TRUE) {
-				if($_SESSION["OFFLINE_MODE"] == 0)
-				{
-					$functions->iTransferOutRM($rowid,$branch,$report_date,$shift,$time_covered,$person,$encoder,$category,$item_id,$item_name,$weight,$units,$transfer_to,$date_created,$updated_by,$date_updated,$conn);
-				}				
-				$functions->setUpdatePosting($table,$branch,$transdate,$shift,$rowid,$db);
-			} 
-			else
-			{
-				echo '<script>app_alert("System Message","'.$db->error.'","warning");</script>';
-			}
-		}
-		if($rowcount == $x)
-		{
-			print_r('
-				<script>
-					app_alert("System Message","Rawmats Transfer Out Summary Successfuly Report Posted","success","Ok","","");
-					$("#" + sessionStorage.navcount).click();
-				</script>
-			'); 
-		}
-	} 
-	/*  ---------------------------------------------- */
+
+if($mode == 'rm_transfer') {
+    $table = "store_".$mode."_data";
+    
+    $query = "SELECT * FROM $table WHERE branch='$branchNow' AND shift='$shift' AND report_date='$transdate' AND item_id!=''";  
+    $result = mysqli_query($db, $query);  
+    $rowcount = mysqli_num_rows($result);
+    $x = 0;
+    $datain = array();
+    $dataup = array();
+    $save = 0;
+
+    while($ROW = mysqli_fetch_array($result)) {
+        $x++;        
+        $rowid       = $ROW['id'];
+        $rowBranch   = $ROW['branch'];
+        $report_date = $ROW['report_date'];
+        $shift       = $ROW['shift'];
+        $time_covered= $ROW['time_covered'];
+        $person      = $ROW['employee_name'];
+        $encoder     = $ROW['supervisor'];
+        $category    = $ROW['category'];
+        $item_id     = $ROW['item_id'];
+        $item_name   = $ROW['item_name'];
+        $weight      = $ROW['weight'] + $functions->GetRMTransferOutQtySum($rowBranch, $transdate, $shift, $item_id, $db);
+        $units       = $ROW['units'];
+        $transfer_from = $ROW['transfer_from'];
+        $transfer_to   = $ROW['transfer_to'];
+        $date_created  = $ROW['date_created'];
+        $date_updated  = $ROW['date_updated'];
+        $updated_by    = $ROW['updated_by'];
+        $posted        = $ROW['posted'];
+        $status        = $ROW['status'];
+
+        // --- Determine transfer type relative to current branch ---
+        if ($transfer_to == $branchNow) {
+            $transferCol = 'transfer_in';
+        } elseif ($transfer_from == $branchNow) {
+            $transferCol = 'transfer_out';
+        } else {
+            $transferCol = null; // skip if not related to this branch
+        }
+
+        if ($transferCol !== null) {
+            $summaryCheck = "SELECT * FROM store_rm_summary_data 
+                             WHERE branch='$branchNow' AND report_date='$transdate' 
+                             AND shift='$shift' AND item_id='$item_id'";
+            $summaryResult = mysqli_query($db, $summaryCheck);  
+
+            if($summaryResult->num_rows > 0) {
+                $queryUpdate = "UPDATE store_rm_summary_data 
+                                SET $transferCol='$weight' 
+                                WHERE branch='$branchNow' AND report_date='$transdate' 
+                                  AND shift='$shift' AND item_id='$item_id'";
+                $db->query($queryUpdate);
+                $functions->setUpdatePosting($table, $branchNow, $transdate, $shift, $rowid, $db);
+            } else {
+                $queryInsert = "INSERT INTO store_rm_summary_data 
+                                (branch, report_date, shift, time_covered, item_id, item_name, $transferCol, date_created)
+                                VALUES ('$branchNow', '$transdate', '$shift', '$time_covered', '$item_id', '$item_name', '$weight', '$date_created')";
+                $db->query($queryInsert);
+                $functions->setUpdatePosting($table, $branchNow, $transdate, $shift, $rowid, $db);
+            }
+        }
+
+        if($rowcount == $x) {
+            echo '
+            <script>
+                app_alert("System Message","Rawmats Transfer Summary Successfully Posted","success","Ok","","");
+                $("#"+sessionStorage.navcount).click();
+            </script>';
+        }
+    } 
 }
+
+
+
 /* ###################################### RAWMATS TRANSFER IN SUMMARY ###################################### */
 if($mode == 'rm_transferin') 
 {

@@ -36,8 +36,8 @@ if($functions->CheckData($table,$functions->AppBranch(),$functions->GetSession('
 		<td style="width:150px"></td>
 		<td style="text-align:right">
 			<!--button id="fetchbegbtn" <?php echo $fetch_btn; ?> class="btn btn-primary" onclick="fetchBeginnings()"><i class="fa-solid fa-arrows-retweet"></i> FETCH ALL BEGINNINGS</button-->
-			<button id="posttosummarybtn" class="btn btn-success" <?php echo $summary_btn; ?> onclick="postToSummary('<?php echo $file_name; ?>')"><i class="fa-solid fa-bring-forward"></i>&nbsp;&nbsp;POST SUMMARY</button>&nbsp;
-			<button id="unlockbutton" class="btn btn-info" <?php echo $unlock_btn; ?> onclick="calculateSummary('<?php echo $file_name; ?>')"><i class="fa-solid fa-calculator"></i>&nbsp;&nbsp;CALCULATE</button>
+			<!--button id="posttosummarybtn" class="btn btn-success" <?php echo $summary_btn; ?> onclick="postToSummary('<?php echo $file_name; ?>')"><i class="fa-solid fa-bring-forward"></i>&nbsp;&nbsp;POST SUMMARY</button>&nbsp;
+			<button id="unlockbutton" class="btn btn-info" <?php echo $unlock_btn; ?> onclick="calculateSummary('<?php echo $file_name; ?>')"><i class="fa-solid fa-calculator"></i>&nbsp;&nbsp;CALCULATE</button-->
 		</td>
 	</tr>
 </table>

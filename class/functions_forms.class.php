@@ -1,5 +1,5 @@
 <?php
-ini_set('display_errors',0);
+
 class FunctionForms
 {
 	public function threeShiftingPostingStatusGetValue($itemid, $shift, $transdate, $branch, $db)

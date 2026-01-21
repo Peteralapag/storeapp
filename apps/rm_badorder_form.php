@@ -35,7 +35,7 @@ if($transmode == 'new')
 	$item_id = '';
 	$item_name = '';
 	$weight = '0.00';
-	$units = '0.00';
+	$units = 'KILO';
 }
 ?>
 <table style="width: 100%" class="tables" cellpadding="4" cellspacing="5">

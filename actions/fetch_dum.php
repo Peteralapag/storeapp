@@ -26,11 +26,14 @@ if(!isset($_SESSION['session_shift'])) { $store_shift = ''; } else { $store_shif
 			$transfer_out = $FGTSDATA['transfer_out'];
 			$actual_count = $FGTSDATA['actual_count'];
 			
+			$actual_usage = $items->getRMBuildAssemblyTotal($item_name, $item_id, $store_branch, $report_date, $shift, $db);
+			
+			
 			// $price_kg = $items->getItemPrice($item_id,$db);
 			$dum_id = $items->GetSummary($rowid,$store_branch,$trans_date,$store_shift,$db);
 			if($dum_id != $rowid)
 			{
-				$value = "'$rowid','$item_id','$store_branch','$report_date','$shift','$item_name','$beginning','$delivery','$transfer_in','$transfer_out','$actual_count','$price_kg'";
+				$value = "'$rowid','$item_id','$store_branch','$report_date','$shift','$item_name','$beginning','$delivery','$transfer_in','$transfer_out','$actual_usage','$actual_count','$price_kg'";
 				echo $items->SaveToDUM($value,$db);
 			}
 		}

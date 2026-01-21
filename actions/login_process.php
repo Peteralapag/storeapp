@@ -77,7 +77,7 @@ if(isset($_POST['mode']))
 				$_SESSION['session_sidebar'] = 'fgts';
 				$_SESSION['session_transfer'] = 'TRANSFER IN';
 				$_SESSION['OFFLINE_MODE'] = 0;
-				$_SESSION['appstore_maintenance'] = maintenanceStatus();
+//				$_SESSION['appstore_maintenance'] = maintenanceStatus();
 				
 				$cmd = '';
 				$cmd .='				
@@ -133,7 +133,7 @@ function checkPolicy($idcode,$user_app,$db)
 		return 0;
 	}
 }
-
+/*
 function maintenanceStatus()
 {
 	$dbm = new mysqli('120.28.196.113', 'rbsapps', 'admin@rbs.com', 'rosebakeshop_data', 13306);
@@ -152,6 +152,6 @@ function maintenanceStatus()
     $result->free();
 	$dbm->close();
 }
-
+*/
 
 ?>

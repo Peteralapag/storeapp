@@ -56,7 +56,7 @@ function deleteDumItemIndividual(rowid)
 	<table style="width: 100%" class="table-grid">
 		<tr class="bottom-border">
 			<td style="text-align:center;width:40px;"><strong>#</strong></td>
-			<!--td style="text-align:center"><strong>DEL</strong></td-->
+			<td style="text-align:center"><strong>DEL</strong></td>
 			<td style="text-align:center"><strong>MATERIALS</strong></td>
 			<td style="text-align:center"><strong>BEG</strong></td>
 			<td style="text-align:center"><strong>DELIVERY</strong></td>
@@ -71,7 +71,7 @@ function deleteDumItemIndividual(rowid)
 					<tr style="border-top:1px solid #aeaeae">
 						<td style="width: 33%;border-right:1px solid #aeaeae;text-align:center"><strong>IN</strong></td>
 						<td style="width: 33%;text-align:center;border-right:1px solid #aeaeae"><strong>OUT</strong></td>
-						<td style="width: 33%;text-align:center"><strong>C-IN</strong></td>
+						<td style="width: 33%;text-align:center"><strong>C-OUT</strong></td>
 					</tr>
 				</table>
 				<!-- ################ TRANSFER  ###################-->
@@ -101,7 +101,7 @@ function deleteDumItemIndividual(rowid)
 		<!-- ############################# DATA ################################# -->
 <?php
 	$v_amount=0;$v_short=0;$v_over=0;
-	$query ="SELECT * FROM store_rm_summary_data WHERE branch='$store_branch' AND shift='$store_shift' AND report_date='$trans_date'";  
+	$query ="SELECT * FROM store_dum_data WHERE branch='$store_branch' AND shift='$store_shift' AND report_date='$trans_date'";  
 	$result = mysqli_query($db, $query);  
 	if($result->num_rows > 0)
 	{
@@ -110,22 +110,23 @@ function deleteDumItemIndividual(rowid)
 		{
 			$n++;
 			$rowid = $DUMROW['id'];
+			$sid = $DUMROW['sid'];
 			$branch = $DUMROW['branch'];
 			$report_date = $DUMROW['report_date'];
 			$shift = $DUMROW['shift'];
 			$item_name = $DUMROW['item_name'];
 			$beginning = $DUMROW['beginning'];
-			$delivery = $DUMROW['stock_in'];
+			$delivery = $DUMROW['delivery'];
 			$transfer_in = $DUMROW['transfer_in'];
 			$transfer_out = $DUMROW['transfer_out'];
 			$counter_out = $DUMROW['counter_out'];
 			$sub_total = $DUMROW['sub_total'];
 			$actual_usage = $DUMROW['actual_usage'];
-			$net_total = $DUMROW['total'];
-			$physical_count = $DUMROW['actual_count'];
-			$variance = $DUMROW['difference'];
+			$net_total = $DUMROW['net_total'];
+			$physical_count = $DUMROW['physical_count'];
+			$variance = $DUMROW['variance'];
 			$price_kg = $DUMROW['price_kg'];
-			$variance_amount = $DUMROW['variances'];
+			$variance_amount = $DUMROW['variance_amount'];
 			$posted = $DUMROW['posted'];
 			$status = $DUMROW['status'];
 			
@@ -138,15 +139,24 @@ function deleteDumItemIndividual(rowid)
 			else if($variance > 0) { $bgcolor = '#f6efd8'; } 
 			else { $bgcolor = ''; }
 
+			if($sid == 'null' || $sid == '')			
+			{
+				$deletebtn = '<i class="fa fa-trash fared" onclick="DeleteItem('.$rowid.')"></i>';
+			} else {
+				$deletebtn = '<i class="fa-solid fa-lock fagreen"></i>';
+			}
 ?>
 		<tr>
 			<td style="text-align:center"><?php echo $n; ?></td>
-			<!--td style="text-align:center">
+			<td style="text-align:center">
 				<button class="btn btn-danger btn-sm" onclick="DeleteDumIdiv('<?php echo $rowid; ?>')"><i class="fa-solid fa-trash"></i></button>
-			</td-->
+			</td>
 			<td style="width:300px">				
 				<table style="width: 100%;border-collapse:collapse;border:0" cellpadding="0" cellspacing="0">
 					<tr>
+						<td style="width:30px;border:0;text-align:center">
+							<?php echo $deletebtn; ?>
+						</td>
 						<td style="border:0">
 							<input type="text" class="textbox" style="width:100%;text-align:left" value="<?php echo $item_name; ?>" readonly>
 						</td>
@@ -165,7 +175,7 @@ function deleteDumItemIndividual(rowid)
 							<input type="text" class="textbox" style="width:100%;text-align:center" value="<?php echo $transfer_out; ?>" readonly>
 						</td>
 						<td style="width: 33%;text-align:center">
-							<input id="cout<?php echo $n; ?>" type="text" class="textbox" style="width:100%;text-align:center;" value="<?php echo $counter_out; ?>" readonly>
+							<input id="cout<?php echo $n; ?>" type="text" class="textbox" style="width:100%;text-align:center;background:#e1f6f7" value="<?php echo $counter_out; ?>">
 						</td>
 					</tr>
 				</table>
@@ -175,7 +185,7 @@ function deleteDumItemIndividual(rowid)
 				<table style="width: 100%" class="table-grid no-border">
 					<tr style="border-top:1px solid #aeaeae">
 						<td style="width: 100%;border-right:1px solid #aeaeae;text-align:center">
-							<input id="actual_usage<?php echo $n; ?>" type="text" class="textbox" style="width:100%;text-align:center;" value="<?php echo $actual_usage; ?>" disabled>
+							<input id="actual_usage<?php echo $n; ?>" type="text" class="textbox" style="width:100%;text-align:center;background:#e1f6f7" value="<?php echo $actual_usage; ?>">
 						</td>
 					</tr>
 				</table>
@@ -189,7 +199,6 @@ function deleteDumItemIndividual(rowid)
 <script>
 $(function()
 {
-	/*
 	$('#cout' + '<?php echo $n; ?>').keydown(function (e)
 	{
 	    if (e.keyCode == 13)
@@ -208,7 +217,6 @@ $(function()
 			});
 	    }
 	});
-	*/
 	$('#actual_usage' + '<?php echo $n; ?>').keydown(function (e)
 	{
 	    if (e.keyCode == 13)
@@ -235,7 +243,7 @@ $(function()
 			<td style="text-align:center">
 				<button id="formbtn" class="btn-block" style="height:27px;border:0"><i class="fa-solid fa-caret-down"></i></button>
 			</td>
-			<!--td></td-->
+			<td></td>
 			<td style="width:300px;padding:5px;text-align:center">TOTAL</td>
 			<td>&nbsp;</td>
 			<td>&nbsp;</td>

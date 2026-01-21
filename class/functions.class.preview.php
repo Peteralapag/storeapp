@@ -57,6 +57,7 @@ class preview
 	public function getTableValueOnly($table,$column,$itemname,$branch,$transdate,$shift,$db)
 	{
 		$tbl = "store_".$table."_data";
+		
 		$query = "SELECT * FROM $tbl WHERE branch='$branch' AND report_date='$transdate' AND shift='$shift' AND item_name='$itemname'";
 		$result = mysqli_query($db, $query);    
 	    if ( $result->num_rows > 0 ) 
@@ -93,7 +94,7 @@ class preview
 	public function getTableValuetransferIn($table,$column,$itemname,$branch,$transdate,$shift,$db)
 	{
 		$tbl = "store_".$table."_data";
-		$query = "SELECT SUM($column) AS value FROM $tbl WHERE transfer_to='$branch' AND report_date='$transdate' AND shift='$shift' AND item_name='$itemname'";
+		$query = "SELECT SUM($column) AS value FROM $tbl WHERE branch='$branch' AND transfer_to='$branch' AND report_date='$transdate' AND shift='$shift' AND item_name='$itemname'";
 		$result = mysqli_query($db, $query);    
 	    if ( $result->num_rows > 0 ) 
 	    { 
@@ -107,6 +108,25 @@ class preview
 			return 0;
 		}
 	}
+	
+	public function getTableValuetransferOut($table,$column,$itemname,$branch,$transdate,$shift,$db)
+	{
+		$tbl = "store_".$table."_data";
+		$query = "SELECT SUM($column) AS value FROM $tbl WHERE branch='$branch' AND transfer_from='$branch' AND report_date='$transdate' AND shift='$shift' AND item_name='$itemname'";
+		$result = mysqli_query($db, $query);    
+	    if ( $result->num_rows > 0 ) 
+	    { 
+	    	$value = 0;
+		    while($ROWS = mysqli_fetch_array($result))  
+			{
+				$value = $ROWS['value'];
+			}
+			return $value;
+		} else {
+			return 0;
+		}
+	}
+
 	
 
 }

@@ -32,18 +32,6 @@ $employee = $employees == '0' ? '' : $employees;
 $idcodes = $functions->getTableValue('charges', 'idcode', $itemname, $branch, $report_date, $shift, $db);
 $idcode = $idcodes == 0 ? '' : $idcodes;
 
-
-$charge_slip_nos = $functions->getTableValue('charges', 'slip_no', $itemname, $branch, $report_date, $shift, $db);
-$charge_slip_no = $charge_slip_nos == '0' ? '' : $charge_slip_nos;
-
-$remarkss = $functions->getTableValue('charges', 'remarks', $itemname, $branch, $report_date, $shift, $db);
-$remarks = $remarkss == '0' ? '': $remarkss;
-
-$quantitys = $functions->getTableValue('charges', 'quantiry', $itemname, $branch, $report_date, $shift, $db);
-$quantity = $quantitys == '0' ? '': $remarkss;
-
-
-
 $selected_charge_type = $functions->getTableValue('charges', 'charges_type', $itemname, $branch, $report_date, $shift, $db);
 ?>
 
@@ -148,27 +136,20 @@ $selected_charge_type = $functions->getTableValue('charges', 'charges_type', $it
 
         <div class="col-md-4 mt-3">
             <label class="form-label">Charge Slip No.</label>
-            <input type="text" id="charge_slip_no" class="form-control" placeholder="Enter charge slip no." value="<?= htmlspecialchars($charge_slip_no)?>">
+            <input type="text" id="charge_slip_no" class="form-control" placeholder="Enter charge slip no.">
         </div>
 
         <div class="col-md-4 mt-3">
             <label class="form-label">Remarks</label>
-            <input type="text" id="remarks" class="form-control" placeholder="Enter remarks" value="<?= htmlspecialchars($remarks)?>">
+            <input type="text" id="remarks" class="form-control" placeholder="Enter remarks">
         </div>
-        
-        
-        <div class="col-md-4 mt-3">
-            <label class="form-label">Quantity</label>
-            <input type="number" id="quantity" class="form-control" placeholder="Enter remarks" value="<?= htmlspecialchars($quantity)?>">
-        </div>
-
     </div>
 </div>
 
 
 
 <div class="d-flex justify-content-end mt-3" style="float:right">
-    <button type="button" class="btn btn-outline-secondary me-2" onclick="openMultipleEmployeeModal('<?= $params?>','<?= $itemname?>','<?= $itemid?>')">
+    <button type="button" class="btn btn-outline-secondary me-2" onclick="openMultipleEmployeeModal()">
         <i class="bi bi-people-fill"></i> Add Multiple Employees
     </button>
     <button type="button" class="btn btn-success" onclick="savechargesemployeeauto()">
@@ -181,11 +162,11 @@ $selected_charge_type = $functions->getTableValue('charges', 'charges_type', $it
 
 <script>
 
-function openMultipleEmployeeModal(params,itemname,itemid) {
+function openMultipleEmployeeModal() {
     
-    $.post("./apps/charges_employee_multiple.php", { params: params, itemname: itemname, itemid: itemid },
+    $.post("./apps/charges_employee_form.php", { params: params, itemname: itemname, itemid: itemid },
 	function(data) {
-		$('#additem_title').html('ADD CHARGES MULTIPLE EMPLOYEE');
+		$('#additem_title').html('ADD CHARGES EMPLOYEE');
 		$("#additem_page").html(data);
 	});
 	$('#additem').fadeIn();
@@ -234,8 +215,6 @@ $(document).ready(function () {
 
 
 function savechargesemployeeauto() { 
-	
-	psaSpinnerOn();
     var mode = 'savechargesemployeeauto_new';
     var itemname = $('#itemname').val();
     var itemid = $('#itemid').val();
@@ -251,28 +230,24 @@ function savechargesemployeeauto() {
 
     // Validation
     if (employee.trim() === "" || idcode.trim() === "") {
-    	psaSpinnerOff();
         app_alert("System Message", "Please select a valid employee from the list.", "info");
         $('#search_employee').focus();
         return;
     }
 
     if (chargetype === "") {
-    	psaSpinnerOff();
         app_alert("System Message", "Please select a Charge Type.", "info");
         $('#charge_type').focus();
         return;
     }
 
     if (chargeSlip === "") {
-    	psaSpinnerOff();
         app_alert("System Message", "Please enter a Charge Slip No.", "info");
         $('#charge_slip_no').focus();
         return;
     }
 
     if (remarks === "") {
-    	psaSpinnerOff();
         app_alert("System Message", "Please enter remarks.", "info");
         $('#remarks').focus();
         return;
@@ -294,7 +269,6 @@ function savechargesemployeeauto() {
         remarks: remarks
     }, function (data) {
         $("#results").html(data);
-        psaSpinnerOff();
     });
 }
 </script>

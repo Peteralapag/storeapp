@@ -53,6 +53,21 @@ if ($_SESSION['IS_ONLINE'] === 1 && $conn && $connwms)
 	$sellingcost = $brrr->sellingcostconn($branch, $reportdate, $reportdate, $conn);
 	$sellingratio = ($dailytotalsales != 0) ? ($sellingcost / $dailytotalsales) * 100: 0;
 	
+	
+	$bakersot = $brrr->getBakerIDs($branch, $reportdate, $reportdate, $db);
+	$salariesbakerot = $brrr->getSalaries($bakersot, $db);
+	$totalbakersot = $brrr->computeBakerOTCost($bakersot, $salariesbakerot, $reportdate, $reportdate, $conn);
+	$bakerotratio = ($dailytotalsales != 0) ? ($totalbakersot / $dailytotalsales) * 100: 0;
+	
+	
+	$sellingsot = $brrr->getSellingIDs($branch, $reportdate, $reportdate, $db);
+	$salariessellingot = $brrr->getSellingSalaries($sellingsot, $db);
+	$totalsellingot = $brrr->computeSellingOTCost($sellingsot, $salariessellingot, $reportdate, $reportdate, $conn);
+	$sellingotratio = ($dailytotalsales != 0) ? ($totalsellingot / $dailytotalsales) * 100: 0;
+
+
+
+	
 	$month13costbaker = $bakercost / 12;
 	$month13ratiobaker = ($dailytotalsales_bakersonly != 0) ? ($month13costbaker / $dailytotalsales_bakersonly) * 100: 0;
 	
@@ -219,6 +234,12 @@ else
 	$sellingcost = 0;
 	$sellingratio = 0;
 	
+	
+	
+	$bakerotratio = 0;
+	$sellingotratio = 0;
+
+	
 	$month13costbaker = 0;
 	$month13ratiobaker = 0;
 	
@@ -343,6 +364,30 @@ if (!$IS_ONLINE)
             <td></td>
 
         </tr>
+
+
+		<tr>
+            <td></td>
+            <td colspan="3" title="<?= $bakertitle?>" style="<?= $bakerstyle?>">Baker's OT</td>
+            <td><?= number_format($bakerotratio, 3) ?>%</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td colspan="3" title="<?= $sellingtitle?>" style="<?= $sellingstyle?>">Selling's OT</td>
+            <td><?= number_format($sellingotratio, 3) ?>%</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+
+        </tr>
+
+
+
         <tr>
             <td style="text-align:center">Benefits</td>
             <td colspan="3"></td>

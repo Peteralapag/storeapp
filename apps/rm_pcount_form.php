@@ -113,7 +113,7 @@ if($transmode == 'new')
 		<td style="width:10px;"></td>
 		<td>
 			<select id="uom" class="form-control" name="D1">
-				<?php echo $dropdown->GetUOM($units); ?>
+				<?php echo $dropdown->GetUOM('KILO'); ?>
 			</select></td>
 	</tr>
 	<tr>

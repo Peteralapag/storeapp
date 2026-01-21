@@ -626,6 +626,7 @@ class TheSummary
 			$quantity = $ROW['quantity'];
 			$unit_price = $ROW['unit_price'];
 			$amount = $ROW['amount'];
+			$transfer_from = $ROW['transfer_from'];
 			$transfer_to = $ROW['transfer_to'];
 			$date_created = $ROW['date_created'];
 			$date_updated = $ROW['date_updated'];
@@ -636,7 +637,7 @@ class TheSummary
 			
 			$update = "
 				tid='$tid',branch='$branch',report_date='$report_date',shift='$shift',time_covered='$time_covered',employee_name='$employee_name',supervisor='$supervisor',
-				category='$category',item_id='$item_id',item_name='$item_name',quantity='$quantity',unit_price='$unit_price',amount='$amount',transfer_to='$transfer_to',
+				category='$category',item_id='$item_id',item_name='$item_name',quantity='$quantity',unit_price='$unit_price',amount='$amount',transfer_from='$transfer_from',transfer_to='$transfer_to',
 				date_created='$date_created',date_updated='$date_updated',updated_by='$updated_by',form_no='$form_no',posted='$posted',status='$status'
 			";			
 		}
@@ -647,8 +648,8 @@ class TheSummary
 			$queryDataUpdate = "UPDATE $table SET $update WHERE $recipient AND report_date='$transdate' AND shift='$shift' AND bid='$bid'";
 			if ($mainconn->query($queryDataUpdate) === TRUE) { } else { echo "ERROR::: ".$mainconn->error; }
 		} else {
-			$queryInsert = "INSERT INTO $table (`bid`,`tid`,`branch`,`report_date`,`shift`,`time_covered`,`employee_name`,`supervisor`,`category`,`item_id`,`item_name`,`quantity`,`unit_price`,`amount`,`transfer_to`,`date_created`,`date_updated`,`updated_by`,`form_no`,`posted`,`status`)";
-			$queryInsert .= "VALUES('$bid','$tid','$branch','$report_date','$shift','$time_covered','$employee_name','$supervisor','$category','$item_id','$item_name','$quantity','$unit_price','$amount','$transfer_to','$date_created','$date_updated','$updated_by','$form_no','$posted','$status')";
+			$queryInsert = "INSERT INTO $table (`bid`,`tid`,`branch`,`report_date`,`shift`,`time_covered`,`employee_name`,`supervisor`,`category`,`item_id`,`item_name`,`quantity`,`unit_price`,`amount`,`transfer_from`,`transfer_to`,`date_created`,`date_updated`,`updated_by`,`form_no`,`posted`,`status`)";
+			$queryInsert .= "VALUES('$bid','$tid','$branch','$report_date','$shift','$time_covered','$employee_name','$supervisor','$category','$item_id','$item_name','$quantity','$unit_price','$amount','$transfer_from','$transfer_to','$date_created','$date_updated','$updated_by','$form_no','$posted','$status')";
 			if ($mainconn->query($queryInsert) === TRUE) { } else { echo "ERROR::: ".$mainconn->error; }
 		}
 	}
@@ -1141,12 +1142,12 @@ class TheSummary
 		{
 			$bid = $ROW['id'];$tid = $ROW['tid'];$branch = $ROW['branch'];$report_date = $ROW['report_date'];$shift = $ROW['shift'];$time_covered = $ROW['time_covered'];
 			$employee_name = $ROW['employee_name'];$supervisor = $ROW['supervisor'];$category = $ROW['category'];$item_id = $ROW['item_id'];$item_name = $ROW['item_name'];
-			$weight = $ROW['weight'];$units = $ROW['units'];$transfer_to = $ROW['transfer_to'];$date_created = $ROW['date_created'];$date_updated = $ROW['date_updated'];
+			$weight = $ROW['weight'];$units = $ROW['units'];$transfer_from = $ROW['transfer_from'];$transfer_to = $ROW['transfer_to'];$date_created = $ROW['date_created'];$date_updated = $ROW['date_updated'];
 			$updated_by = $ROW['updated_by'];$posted = $ROW['posted'];$status = $ROW['status'];
 	
 			$update = "			
 				bid='$bid',branch='$branch',report_date='$report_date',shift='$shift',time_covered='$time_covered',employee_name='$employee_name',
-				supervisor='$supervisor',category='$category',item_id='$item_id',item_name='$item_name',weight='$weight',units='$units',transfer_to='$transfer_to',
+				supervisor='$supervisor',category='$category',item_id='$item_id',item_name='$item_name',weight='$weight',units='$units',transfer_from='$transfer_from',transfer_to='$transfer_to',
 				date_created='$date_created',date_updated='$date_updated',updated_by='$updated_by',posted='$posted',status='$status'
 			";			
 		}		
@@ -1157,8 +1158,8 @@ class TheSummary
 			$queryDataUpdate = "UPDATE store_rm_transfer_data SET $update WHERE $recipient AND report_date='$transdate' AND shift='$shift' AND bid='$bid'";			
 			if ($mainconn->query($queryDataUpdate) === TRUE) { } else { echo "ERROR::: ".$mainconn->error; }
 		} else {
-			$queryInsert = "INSERT INTO store_rm_transfer_data (`bid`,`branch`,`report_date`,`shift`,`time_covered`,`employee_name`,`supervisor`,`category`,`item_id`,`item_name`,`weight`,`units`,`transfer_to`,`date_created`,`date_updated`,`updated_by`,`posted`,`status`)";
-			$queryInsert .= "VALUES('$bid','$branch','$report_date','$shift','$time_covered','$employee_name','$supervisor','$category','$item_id','$item_name','$weight','$units','$transfer_to','$date_created','$date_updated','$updated_by','$posted','$status')";
+			$queryInsert = "INSERT INTO store_rm_transfer_data (`bid`,`branch`,`report_date`,`shift`,`time_covered`,`employee_name`,`supervisor`,`category`,`item_id`,`item_name`,`weight`,`units`,`transfer_from`,`transfer_to`,`date_created`,`date_updated`,`updated_by`,`posted`,`status`)";
+			$queryInsert .= "VALUES('$bid','$branch','$report_date','$shift','$time_covered','$employee_name','$supervisor','$category','$item_id','$item_name','$weight','$units','$transfer_from','$transfer_to','$date_created','$date_updated','$updated_by','$posted','$status')";
 			if ($mainconn->query($queryInsert) === TRUE) { } else { echo "ERRORS::: ".$mainconn->error; }
 		}
 	}
@@ -1264,13 +1265,14 @@ class TheSummary
 			$bid = $ROW['id'];$branch = $ROW['branch'];$report_date = $ROW['report_date'];$shift = $ROW['shift'];$time_covered= $ROW['time_covered'];$category= $ROW['category'];
 			$item_id = $ROW['item_id'];$item_name = $ROW['item_name'];$beginning = $ROW['beginning'];$stock_in = $ROW['stock_in'];$receiving_in = $ROW['receiving_in'];$transfer_in = $ROW['transfer_in'];
 			$sub_total = $ROW['sub_total'];$transfer_out = $ROW['transfer_out'];$bo = $ROW['bo'];$total = $ROW['total'];$actual_count = $ROW['actual_count'];$difference = $ROW['difference'];
-			$price_kg = $ROW['price_kg'];$amount = $ROW['amount'];$date_created = $ROW['date_created'];$posted = $ROW['posted'];$status = $ROW['status'];
+			$price_kg = $ROW['price_kg'];$amount = $ROW['amount'];$actual_usage = $ROW['actual_usage'];$date_created = $ROW['date_created'];$posted = $ROW['posted'];$status = $ROW['status'];
+			$variances = $ROW['variances'];
 					
 			$update = "
 				branch='$branch',report_date='$report_date',shift='$shift',time_covered='$time_covered',category='$category',
 				item_id='$item_id',item_name='$item_name',beginning='$beginning',stock_in='$stock_in',receiving_in='$receiving_in',transfer_in='$transfer_in',
-				sub_total='sub_total',transfer_out='$transfer_out',bo='$bo',total='$total',actual_count='$actual_count',difference='$difference',
-				price_kg='$price_kg',amount='$amount',date_created='$date_created',posted='$posted',status='$status'
+				sub_total='sub_total',transfer_out='$transfer_out',bo='$bo',total='$total',actual_count='$actual_count',difference='$difference',variances='$variances',
+				price_kg='$price_kg',amount='$amount',actual_usage='$actual_usage',date_created='$date_created',posted='$posted',status='$status'
 			";			
 		}		
 		$queryRemote ="SELECT * FROM $table WHERE branch='$storebranch' AND report_date='$transdate' AND shift='$shift' AND bid='$bid'";
@@ -1280,8 +1282,8 @@ class TheSummary
 			$queryDataUpdate = "UPDATE $table SET $update WHERE bid='$rowid' AND branch='$storebranch' AND report_date='$transdate' AND shift='$shift'";
 			if ($mainconn->query($queryDataUpdate) === TRUE) { } else { echo "ERROR::: ".$mainconn->error; }
 		} else {
-			$queryInsert = "INSERT INTO $table (`bid`,`branch`,`report_date`,`shift`,`time_covered`,`category`,`item_id`,`item_name`,`beginning`,`stock_in`,`receiving_in`,`transfer_in`,`sub_total`,`transfer_out`,`bo`,`total`,`actual_count`,`difference`,`price_kg`,`amount`,`date_created`,`posted`,`status`)";
-			$queryInsert .= "VALUES('$bid','$branch','$report_date','$shift','$time_covered','$category','$item_id','$item_name','$beginning','$stock_in','$receiving_in','$transfer_in','$sub_total','$transfer_out','$bo','$total','$actual_count','$difference','$price_kg','$amount','$date_created','$posted','$status')";
+			$queryInsert = "INSERT INTO $table (`bid`,`branch`,`report_date`,`shift`,`time_covered`,`category`,`item_id`,`item_name`,`beginning`,`stock_in`,`receiving_in`,`transfer_in`,`sub_total`,`transfer_out`,`bo`,`total`,`actual_count`,`difference`,`variances`,`price_kg`,`amount`,`actual_usage`,`date_created`,`posted`,`status`)";
+			$queryInsert .= "VALUES('$bid','$branch','$report_date','$shift','$time_covered','$category','$item_id','$item_name','$beginning','$stock_in','$receiving_in','$transfer_in','$sub_total','$transfer_out','$bo','$total','$actual_count','$difference','$variances','$price_kg','$amount','$actual_usage','$date_created','$posted','$status')";
 			if ($mainconn->query($queryInsert) === TRUE) { } else { echo "ERROR::: ".$mainconn->error; }
 		}
 	}	

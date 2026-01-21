@@ -1,13 +1,10 @@
-
 <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
     <input type="date" id="datefrom" class="form-control form-control-sm" style="width:140px;">
     <input type="date" id="dateto" class="form-control form-control-sm" style="width:140px;">
-    <button class="btn btn-primary btn-sm" id="btn_proceed" disabled>Proceed</button>
+    <button class="btn btn-primary btn-sm" id="btn_proceed" disabled>Build Assembly</button>
 </div>
 
-
 <script>
-
 function validateDates() {
     const dateFromVal = $("#datefrom").val();
     const dateToVal = $("#dateto").val();
@@ -43,7 +40,7 @@ $("#datefrom, #dateto").on("change", validateDates);
 
 $("#btn_proceed").click(function () {
     psaSpinnerOn();
-    $.post("./includes/production_data.php", {
+    $.post("./includes/build_assembly_data.php", {
         datefrom: $("#datefrom").val(),
         dateto: $("#dateto").val()
     }, function (res) {

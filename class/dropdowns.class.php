@@ -1,6 +1,15 @@
 <?php
 class DropDowns
 {
+	public function selectItemsrawmats($db){
+		$query ="SELECT product_name FROM store_items WHERE category_name='RAWMATS'";  
+		$result = mysqli_query($db, $query);  
+		echo '<option value="">--- SELECT ITEM ---</option>';
+		while($ROWS = mysqli_fetch_array($result))  
+		{
+			echo '<option>'.$ROWS["product_name"].'</option>';
+		}
+	}
 	
 	public function selectEmployeeAllHo($db){
 		$query ="SELECT * FROM tbl_employees_ho WHERE status='Active'";  

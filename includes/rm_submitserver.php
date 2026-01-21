@@ -65,6 +65,8 @@ $(function()
 	$btn_spacher = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"; 
 	if($connected == 1) {
 ?>
+<div class="alert alert-success">All modules need to be submitted to ensure that all data aligns with your branch and the branch being reviewed by the analyst at the Head Office.</div>
+
 <table style="width: 100%" class="table submit-btn" id="submittoserver">
 	
 	<tr>
@@ -120,7 +122,7 @@ $(function()
 			<?php } ?>
 		</td>
 	</tr>
-	<tr>
+	<!--tr>
 		<td class="btn-td"><button class="btn btn-primary" onclick="SubmitToServer('dum')"><i class="fa-solid fa-hammer pull-left"></i><?php echo $btn_spacher; ?>SUBMIT DUM</button></td>
 		<td id="dum">&nbsp;</td>
 		<td style="text-align:right">
@@ -133,7 +135,7 @@ $(function()
 
 			<?php } ?> 
 		</td>
-	</tr>
+	</tr-->
 	<tr>
 		<td class="btn-td"><button class="btn btn-primary" onclick="SubmitToServer('rm_summary')"><i class="fa-solid fa-file-spreadsheet pull-left"></i><?php echo $btn_spacher; ?>SUBMIT SUMMARY</button></td>
 		<td id="rm_summary">&nbsp;</td>
@@ -215,11 +217,12 @@ function SubmitToServer(params)
 {
 
 	var dateLockChecker = '<?php echo $dateLockCheckerrm; ?>';
+	/*
 	if(dateLockChecker == 1){
 		app_alert("System Message","The date is already locked, if there are any changes, please contact the Analysts.","warning","Ok","","");
 		return false();
 	}
-
+	*/
 	psaSpinnerOn();
 	setTimeout(function()
 	{

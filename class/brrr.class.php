@@ -4,6 +4,275 @@ class brrr
 {	
 	
 	
+	
+	
+	public function bakercostviadate22($branch, $datefrom, $dateto, $db, $conn)
+	{
+	    $like = "%baker%";
+	    $bakerData = [];
+	
+	    // STEP 1: Get DTR logs from LOCAL ($db)
+	    $sql1 = "
+	        SELECT idcode, COUNT(DISTINCT trans_date) AS present_days
+	        FROM tbl_dtr_logs
+	        WHERE trans_date BETWEEN ? AND ?
+	          AND branch = ?
+	        GROUP BY idcode
+	    ";
+	    $stmt1 = $db->prepare($sql1);
+	    if (!$stmt1) {
+	        return 0; // continue quietly if local query fails
+	    }
+	
+	    $stmt1->bind_param("sss", $datefrom, $dateto, $branch);
+	    if (!$stmt1->execute()) {
+	        return 0;
+	    }
+	
+	    $result1 = $stmt1->get_result();
+	    while ($row = $result1->fetch_assoc()) {
+	        $bakerData[$row['idcode']] = $row['present_days'];
+	    }
+	    $stmt1->close();
+	
+	    if (empty($bakerData)) {
+	        return 0; // no bakers found, so no cost
+	    }
+	
+	    // ✅ STEP 2: Check if $conn is alive (internet / main DB connection)
+	    if (!$conn || !$conn->ping()) {
+	        // Optional: log the issue locally if you have a logs table
+	        // file_put_contents("logs.txt", "No connection to main DB at " . date('Y-m-d H:i:s') . "\n", FILE_APPEND);
+	        return 0; // offline mode — just return 0 instead of error
+	    }
+	
+	    // STEP 3: Fetch salary info from MAIN ($conn)
+	    $idcodes = array_keys($bakerData);
+	    $placeholders = implode(',', array_fill(0, count($idcodes), '?'));
+	    $types = str_repeat('s', count($idcodes));
+	
+	    $sql2 = "
+	        SELECT idcode, salary_daily
+	        FROM tbl_employees
+	        WHERE idcode IN ($placeholders)
+	          AND LOWER(position) LIKE ?
+	    ";
+	
+	    $stmt2 = $conn->prepare($sql2);
+	    if (!$stmt2) {
+	        return 0; // no interruption even if prepare fails
+	    }
+	
+	    $params = array_merge($idcodes, [$like]);
+	    $stmt2->bind_param($types . "s", ...$params);
+	
+	    if (!$stmt2->execute()) {
+	        return 0;
+	    }
+	
+	    $result2 = $stmt2->get_result();
+	
+	    // STEP 4: Compute total cost
+	    $total = 0;
+	    while ($row = $result2->fetch_assoc()) {
+	        $id = $row['idcode'];
+	        $salary = (float)$row['salary_daily'];
+	        $days_present = $bakerData[$id] ?? 0;
+	        $total += $salary * $days_present;
+	    }
+	
+	    $stmt2->close();
+	
+	    return $total;
+	}
+
+	
+	
+	
+	
+	//SELLINGS
+	
+	// STEP 1: Get SELLING employee IDs
+	public function getSellingIDs($branch, $datefrom, $dateto, $db)
+	{
+	    $sellingIDs = [];
+	    $sql = "SELECT DISTINCT idcode 
+	            FROM store_brrr_overhead_data 
+	            WHERE branch = ? 
+	              AND report_date BETWEEN ? AND ? 
+	              AND selling = 1 
+	              AND status = 1";
+	    $stmt = $db->prepare($sql);
+	    $stmt->bind_param("sss", $branch, $datefrom, $dateto);
+	    $stmt->execute();
+	    $res = $stmt->get_result();
+	
+	    while ($row = $res->fetch_assoc()) {
+	        $sellingIDs[] = $row['idcode'];
+	    }
+	    $stmt->close();
+	
+//	    echo "DEBUG STEP 1: Selling IDs found → " . implode(', ', $sellingIDs) . "<br>";
+	    return $sellingIDs;
+	}
+	
+	// STEP 2: Get salary daily for each SELLING ID
+	public function getSellingSalaries($sellingIDs, $db)
+	{
+	    $salaryMap = [];
+	    if (empty($sellingIDs)) return $salaryMap;
+	
+	    $sql = "SELECT idcode, salary_daily FROM tbl_employees_ho WHERE idcode = ?";
+	    $stmt = $db->prepare($sql);
+	
+	    foreach ($sellingIDs as $id) {
+	        $stmt->bind_param("s", $id);
+	        $stmt->execute();
+	        $res = $stmt->get_result();
+	        if ($row = $res->fetch_assoc()) {
+	            $salaryMap[$id] = (float)$row['salary_daily'];
+	        } else {
+	            $salaryMap[$id] = 0;
+	        }
+	    }
+	    $stmt->close();
+	
+//	    echo "DEBUG STEP 2: Selling salaries loaded → " . json_encode($salaryMap) . "<br>";
+	    return $salaryMap;
+	}
+	
+	// STEP 3: Compute total OT cost for all SELLING employees
+	public function computeSellingOTCost($sellingIDs, $salaryMap, $datefrom, $dateto, $conn)
+	{
+	    $totalOTCost = 0;
+	    if (empty($sellingIDs)) return 0;
+	
+	    $sql = "SELECT SUM(TIME_TO_SEC(STR_TO_DATE(TRIM(ot), '%H:%i'))) / 3600 AS total_ot
+	            FROM dtrv_ot_approve_logs
+	            WHERE ot_approval = 1
+	              AND transdate BETWEEN ? AND ?
+	              AND idcode = ?";
+	
+	    $stmt = $conn->prepare($sql);
+	
+	    foreach ($sellingIDs as $id) {
+	        $stmt->bind_param("sss", $datefrom, $dateto, $id);
+	        $stmt->execute();
+	        $res = $stmt->get_result();
+	
+	        if ($row = $res->fetch_assoc()) {
+	            $otHours = (float)$row['total_ot'];
+	            $salary = $salaryMap[$id] ?? 0;
+	            $hourly = $salary / 8;
+	            $otPay = $hourly * $otHours * 1.25;
+	            $totalOTCost += $otPay;
+	
+//	            echo "DEBUG STEP 3: $id → OT: $otHours hrs, Salary: $salary, OT Pay: " . round($otPay, 2) . "<br>";
+	        }
+	    }
+	    $stmt->close();
+	
+//	    echo "DEBUG: TOTAL SELLING OT COST: " . round($totalOTCost, 2) . "<br>";
+	    return round($totalOTCost, 2);
+	}
+
+	
+	
+	////BAKERS
+	public function getBakerIDs($branch, $datefrom, $dateto, $db)
+    {
+        $bakerIDs = [];
+        $sql = "SELECT DISTINCT idcode 
+                FROM store_brrr_overhead_data 
+                WHERE branch = ? 
+                  AND report_date BETWEEN ? AND ? 
+                  AND baker = 1 
+                  AND status = 1";
+        $stmt = $db->prepare($sql);
+        $stmt->bind_param("sss", $branch, $datefrom, $dateto);
+        $stmt->execute();
+        $res = $stmt->get_result();
+
+        while ($row = $res->fetch_assoc()) {
+            $bakerIDs[] = $row['idcode'];
+        }
+        $stmt->close();
+
+//        echo "DEBUG STEP 1: Bakers found → " . implode(', ', $bakerIDs) . "<br>";
+        return $bakerIDs;
+    }
+
+    // STEP 2: Get salary daily for each ID
+    public function getSalaries($bakerIDs, $db)
+    {
+        $salaryMap = [];
+        if (empty($bakerIDs)) return $salaryMap;
+
+        $sql = "SELECT idcode, salary_daily FROM tbl_employees_ho WHERE idcode = ?";
+        $stmt = $db->prepare($sql);
+
+        foreach ($bakerIDs as $id) {
+            $stmt->bind_param("s", $id);
+            $stmt->execute();
+            $res = $stmt->get_result();
+            if ($row = $res->fetch_assoc()) {
+                $salaryMap[$id] = (float)$row['salary_daily'];
+            } else {
+                $salaryMap[$id] = 0;
+            }
+        }
+        $stmt->close();
+
+//        echo "DEBUG STEP 2: Salaries loaded → " . json_encode($salaryMap) . "<br>";
+        return $salaryMap;
+    }
+
+    // STEP 3: Compute total OT cost for all bakers
+    public function computeBakerOTCost($bakerIDs, $salaryMap, $datefrom, $dateto, $conn)
+    {
+        $totalOTCost = 0;
+        if (empty($bakerIDs)) return 0;
+
+        $sql = "SELECT SUM(TIME_TO_SEC(STR_TO_DATE(TRIM(ot), '%H:%i'))) / 3600 AS total_ot
+                FROM dtrv_ot_approve_logs
+                WHERE ot_approval = 1
+                  AND transdate BETWEEN ? AND ?
+                  AND idcode = ?";
+
+        $stmt = $conn->prepare($sql);
+
+        foreach ($bakerIDs as $id) {
+            $stmt->bind_param("sss", $datefrom, $dateto, $id);
+            $stmt->execute();
+            $res = $stmt->get_result();
+
+            if ($row = $res->fetch_assoc()) {
+                $otHours = (float)$row['total_ot'];
+                $salary = $salaryMap[$id] ?? 0;
+                $hourly = $salary / 8;
+                $otPay = $hourly * $otHours * 1.25;
+                $totalOTCost += $otPay;
+
+//                echo "DEBUG STEP 3: $id → OT: $otHours hrs, Salary: $salary, OT Pay: " . round($otPay, 2) . "<br>";
+            }
+        }
+        $stmt->close();
+
+//        echo "DEBUG: TOTAL OT COST: " . round($totalOTCost, 2) . "<br>";
+        return round($totalOTCost, 2);
+    }
+	
+	
+
+
+
+
+
+	
+	
+	
+	
+	
 	public function notsubmiteddetection($branch, $datefrom, $dateto, $db)
 	{
 	    // Prepare overhead query
@@ -1186,7 +1455,7 @@ class brrr
 
 
 	
-	public function bakercostviadate($branch, $datefrom, $dateto, $db)
+	public function bakercostviadate($branch, $datefrom, $dateto, $db, $conn)
 	{
 	    $bakerData = [];
 	
@@ -1219,8 +1488,8 @@ class brrr
 	    $placeholders = implode(',', array_fill(0, count($idcodes), '?'));
 	    $types = str_repeat('s', count($idcodes));
 	
-	    $sql = "SELECT idcode, salary_daily FROM tbl_employees_ho WHERE idcode IN ($placeholders)";
-	    $stmt = $db->prepare($sql);
+	    $sql = "SELECT idcode, salary_daily FROM tbl_employees WHERE idcode IN ($placeholders)";
+	    $stmt = $conn->prepare($sql);
 	    if (!$stmt) {
 	        return "Prepare failed (Step 2): " . $db->error;
 	    }
@@ -1706,7 +1975,7 @@ class brrr
 */
 
 	
-	public function sellingcost($branch, $datefrom, $dateto, $db)
+	public function sellingcost($branch, $datefrom, $dateto, $db, $conn)
 	{
 	    $idcodeDays = [];
 	
@@ -1747,8 +2016,8 @@ class brrr
 	    $placeholders = implode(',', array_fill(0, count($idcodes), '?'));
 	    $types = str_repeat('s', count($idcodes));
 	
-	    $sql = "SELECT idcode, salary_daily FROM tbl_employees_ho WHERE idcode IN ($placeholders)";
-	    $stmt = $db->prepare($sql);
+	    $sql = "SELECT idcode, salary_daily FROM tbl_employees WHERE idcode IN ($placeholders)";
+	    $stmt = $conn->prepare($sql);
 	    if (!$stmt) {
 	        return "Prepare failed (Step 2): " . $db->error;
 	    }

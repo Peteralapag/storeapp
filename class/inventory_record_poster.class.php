@@ -120,7 +120,7 @@ class inventoryRecords
 
 	public function transferin($branch,$transdate,$shift,$db){
 		
-		$query = "SELECT * FROM store_transfer_data WHERE transfer_to='$branch' AND report_date='$transdate' AND shift='$shift'";
+		$query = "SELECT * FROM store_transfer_data WHERE branch='$branch' AND transfer_to='$branch' AND report_date='$transdate' AND shift='$shift'";
 		$result = mysqli_query($db, $query);    
 	    if ( $result->num_rows > 0 ) 
 	    { 
@@ -153,7 +153,7 @@ class inventoryRecords
 
 	public function transferout($branch,$transdate,$shift,$db){
 		
-		$query = "SELECT * FROM store_transfer_data WHERE branch='$branch' AND report_date='$transdate' AND shift='$shift'";
+		$query = "SELECT * FROM store_transfer_data WHERE branch='$branch' AND transfer_from='$branch' AND report_date='$transdate' AND shift='$shift'";
 		$result = mysqli_query($db, $query);    
 	    if ( $result->num_rows > 0 ) 
 	    { 
@@ -163,7 +163,7 @@ class inventoryRecords
 				$itemid = $ROWS['item_id'];
 				$item_name = $ROWS['item_name'];
 				$category = $ROWS['category'];
-				$quantity = $this->getSumValueFromTables('store_transfer_data','quantity',$itemid,$branch,$transdate,$shift,$db);
+				$quantity = $this->getSumValueFromTablesTransferout('store_transfer_data','quantity',$itemid,$branch,$transdate,$shift,$db);
 				$employee_name = $ROWS['employee_name'];
 											
 				if($this->summarycheckerifexist($itemid,$branch,$transdate,$shift,$db) == '1')
@@ -474,7 +474,7 @@ class inventoryRecords
 
 	public function getSumValueFromTablesTransferin($table,$tableColumn,$itemid,$branch,$transdate,$shift,$db) // For transfer in only
 	{
-		$sql = "SELECT SUM($tableColumn) AS totalvalue FROM $table WHERE transfer_to='$branch' AND report_date='$transdate' AND shift='$shift' AND item_id='$itemid'";
+		$sql = "SELECT SUM($tableColumn) AS totalvalue FROM $table WHERE branch='$branch' AND transfer_to='$branch' AND report_date='$transdate' AND shift='$shift' AND item_id='$itemid'";
 		$result = mysqli_query($db, $sql);
 		$val = 0;
 		if (mysqli_num_rows($result) > 0) {
@@ -487,6 +487,23 @@ class inventoryRecords
 		  return $val;
 		}
 	}
+	
+	public function getSumValueFromTablesTransferout($table,$tableColumn,$itemid,$branch,$transdate,$shift,$db) // For transfer in only
+	{
+		$sql = "SELECT SUM($tableColumn) AS totalvalue FROM $table WHERE branch='$branch' AND transfer_from='$branch' AND report_date='$transdate' AND shift='$shift' AND item_id='$itemid'";
+		$result = mysqli_query($db, $sql);
+		$val = 0;
+		if (mysqli_num_rows($result) > 0) {
+			while($row = mysqli_fetch_assoc($result)) {
+				$val = $row['totalvalue'];
+			}
+		return $val;
+		} 
+		else {
+		  return $val;
+		}
+	}
+
 	
 	public function threeShiftingShiftGet($shift)
     {

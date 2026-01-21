@@ -17,16 +17,16 @@ if(isset($_POST['search']))
 {
 	$item_name = $_POST['search'];
 	$shift = $_SESSION['session_shift'];
-	$q = "WHERE report_date='$trans_date' AND shift='$shift' AND branch='$store_branch' AND item_name LIKE '%$item_name%'";
-	$iN = "WHERE report_date='$trans_date' AND shift='$shift' AND transfer_to='$store_branch' AND item_name LIKE '%$item_name%'";
+	$q = "WHERE report_date='$trans_date' AND shift='$shift' AND branch='$store_branch' AND transfer_from='$store_branch' AND item_name LIKE '%$item_name%'";
+	$iN = "WHERE report_date='$trans_date' AND shift='$shift' AND transfer_to='$store_branch' AND transfer_from='$store_branch' AND item_name LIKE '%$item_name%'";
 } 
 else
 {
 	if(isset($_SESSION['session_shift'])) 
 	{
 		$shift = $_SESSION['session_shift'];
-		$q = "WHERE report_date='$trans_date' AND shift='$shift' AND branch='$store_branch'";
-		$iN = "WHERE report_date='$trans_date' AND shift='$shift' AND transfer_to='$store_branch'";
+		$q = "WHERE report_date='$trans_date' AND shift='$shift' AND branch='$store_branch' AND transfer_from='$store_branch'";
+		$iN = "WHERE report_date='$trans_date' AND shift='$shift' AND branch='$store_branch' AND transfer_to='$store_branch'";
 	} else {
 		$shift = '';
 		$q = "WHERE report_date='$trans_date' AND branch='$store_branch'";
@@ -203,7 +203,7 @@ if($GET_IN_DATA == 1)
 					<td class="al-right" style=" padding-right:30px !important"><?php echo $ROWS['quantity']; ?></td> <!-- ITEM NAME -->
 					<td style="text-align:right; padding-right:30px !important"><?php echo $ROWS['unit_price']; ?></td> <!-- ACTUAL YIELD -->
 					<td class="al-right" style=" padding-right:30px !important"><?php echo $ROWS['amount']; ?></td> <!-- SHIFT -->
-					<td><?php echo $ROWS['branch']; ?></td> <!-- BAKE -->
+					<td><?php echo $ROWS['transfer_from']; ?></td> <!-- BAKE -->
 					<td style="text-align:center"><?php echo $status; ?></td>
 					<td style="text-align:center; padding:1px !important" class="actions">
 						<?php if($status == 'Open') { ?>

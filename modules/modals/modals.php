@@ -92,6 +92,22 @@
 		</div>
 	</div>
 </div>
+
+<div class="rms-overlay" id="additemcharges">
+	<div class="rms-dialog-inner" id="mydiv" style="overflow: hidden; min-width:200px; min-height:200px; max-width:999px; z-index:1">
+		<div class="rms-modal-title drag" id="mydivheader" style="padding-left:15px;width:1200px;cursor:move">
+			<span style="float:left"><i class="fa fa-bars"></i></span>
+			<span style="text-align:left" id="additemcharges_title">VIEW ORDER REQUEST</span>
+			<div class="rms-modal-close" onClick="closeDialoque('additemcharges');"><h4>&times</h4></div>
+		</div>
+		<div class="rms-modal-content" style="padding:10px 20px 10px 20px ">			
+			<div id="additemcharges_page" style="width:100%;position:relative">Loading...</div>
+			<div class="notification bg-warning results" id="notification"></div>
+		</div>
+	</div>
+</div>
+
+
 <div class="rms-overlay" id="updating">
 	<div class="rms-dialog-inner" style="overflow: hidden; width:400px; z-index:999">
 		<div class="rms-modal-title" style="padding-left:15px">

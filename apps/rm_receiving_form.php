@@ -39,7 +39,7 @@ if($transmode == 'new')
 	$unit_price = '0.00';
 	$item_id = '';
 	$quantity = '1';
-	$units = '';
+	$units = 'KILO';
 	$prefix = '';
 	$invdr = '';
 	$supplier = '';

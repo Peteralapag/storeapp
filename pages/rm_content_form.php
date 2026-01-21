@@ -66,8 +66,7 @@ $tablePosted = $functions->tableDataCheckingForPosted($table,$branch,$transdate,
 			<button id="additembtn" class="btn btn-success btn-sm" onclick="addItem('new','<?php echo $file_name; ?>','<?php echo $title; ?>')"><i class="fa-solid fa-plus"></i>&nbsp;&nbsp;ADD ITEM</button>
 		</td>
 		<td style="text-align:right">
-			<button id="previewdatabtn" class="btn btn-primary btn-sm" onclick="previewData()">Preview Data</button>
-			<button id="posttosummarybtn" class="btn btn-info btn-sm" <?php echo $summary_btn; ?> onclick="postItemModule('<?php echo $file_name; ?>')"><i class="fa-solid fa-bring-forward"></i>&nbsp;&nbsp;POST <?php echo $post_to; ?></button>&nbsp;
+			<button id="posttosummarybtn" class="btn btn-info btn-sm" onclick="postItemModule('<?php echo $file_name; ?>')"><i class="fa-solid fa-bring-forward"></i>&nbsp;&nbsp;POST <?php echo $post_to; ?></button>&nbsp;
 		</td>
 	</tr>
 </table>
@@ -170,7 +169,6 @@ function unLock(params)
 }
 function postToSummary(params)
 {
-	
 	var userAnalyst ='<?php echo $lock_by;?>';
 	var dateLockChecker = '<?php echo $dateLockChecker; ?>';
 	var dateLockCheckerRM = '<?php echo $dateLockCheckerRM; ?>';
@@ -215,18 +213,19 @@ function addItem(transmode,file_name,title)
 	var arrayfilename = ['rm_receiving', 'rm_transfer', 'rm_badorder', 'rm_pcount'];
 	if (arrayfilename.includes(file_name)) {
 	    
+	    /*
 	    if(dateLockCheckerRM == 1){
 			app_alert("System Message","The date is already locked, if there are any changes, please contact "+userAnalyst+" the Data Analysts","warning","Ok","","");
 			return false();
 		}
-
+		*/
 	} else {
-	
+		/*
 		if(dateLockChecker == 1){
 			app_alert("System Message","The date is already locked, if there are any changes, please contact "+userAnalyst+" the Data Analysts","warning","Ok","","");
 			return false();
 		}
-
+		*/
 	}	
 		
 	
