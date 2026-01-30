@@ -35,8 +35,7 @@ else
 			<th>UNIT OF MEASURE</th>
 			<th>SUPPLIER</th>
 			<th>PREFIX</th>
-			<th>STATUS</th>
-			<th>ACTIONS</th>
+
 		</tr>
 	</thead>
 <?php
@@ -75,19 +74,8 @@ if($result->num_rows > 0)
 			<td style="text-align:center"><?php echo $ROWS['units']; ?></td> <!-- ACTUAL YIELD -->
 			<td style="text-align:center"><?php echo $ROWS['supplier']; ?></td>
 			<td style="text-align:center"><?php echo $ROWS['invdr_no']; ?></td>
-			<td style="text-align:center"><?php echo $status; ?></td>
-			<td style="text-align:center; padding:1px !important" class="actions">
-				<?php if($status == 'Open') { ?>
-				<div>
-					<button class="btn btn-success btn-sm" style="width:49%;font-size:11px" onclick="EditUserChecking('edit','<?php echo $file_name; ?>','<?php echo $title; ?>','<?php echo $rowid; ?>')"><i class="fa-duotone fa-pencil"></i></button>
-					<button class="btn btn-danger btn-sm" style="width:49%;font-size:11px" onclick="DeleteUserChecking('<?php echo $rowid; ?>','<?php echo $file_name; ?>','<?php echo $item_name; ?>')"><i class="fa-solid fa-trash"></i></button>
-				</div>
-				<?php }  else {?>
-				<div>
-					<button class="btn btn-warning btn-sm btn-block" style="font-size:11px;"><i class="fa-solid fa-lock-keyhole pull-left"></i> Locked</button>
-				</div>
-				<?php } ?>
-			</td>
+
+			
 		</tr>
 	</tbody>
 <?php } } else {?>
@@ -100,21 +88,4 @@ if($result->num_rows > 0)
 </table>
 <div class="results"></div>
 </div>
-<script>
-function deleteItem(rowid,filename,itemname)
-{
-	app_confirm("Delete Item","Are you sure to delete " + itemname + "?","warning",filename,rowid);
-	return false;
-}
-function deleteItemYes(rowid,filename)
-{
-	rms_reloaderOn('Deleting Data....');
-	var mode = 'deleteitem';
-	$.post("./actions/actions.php", { mode: mode, rowid: rowid, filename: filename },
-	function(data) {
-		$('.results').html(data);
-	//	$('#' + sessionStorage.navcount).trigger('click');
-		rms_reloaderOff();
-	});
-}
-</script>
+

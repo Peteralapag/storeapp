@@ -1,5 +1,5 @@
 <?PHP
-ini_set('display_errors',0);
+//ini_set('display_errors',0);
 $server = $functions->GetOnlineServer('server_ip');
 /* ################### MYSQL DATABASE INFORMATION ########################### */
 $conhost = $server.":13306";

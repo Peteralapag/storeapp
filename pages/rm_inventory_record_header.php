@@ -28,6 +28,18 @@ function checkRmPcountPosted($branch,$transdate,$shift,$db)
 		return 0;
 	}
 }
+function checkPcountPosted($branch,$transdate,$shift,$db)
+{
+	$sql = "SELECT * FROM store_pcount_data WHERE branch='$branch' AND report_date='$transdate' AND shift='$shift' AND posted='Posted' AND status='Closed'";
+    $result = $db->query($sql);
+    if ($result->num_rows > 0) {
+		return 1;
+	}
+	else{
+		return 0;
+	}
+}
+$checkingforsummaryfgts = checkPcountPosted($branch,$transdate,$shift,$db);
 
 ?>
 <style>
@@ -103,6 +115,10 @@ function postItemModule(filename)
 {
 	var userAnalyst ='<?php echo $lock_by;?>';
 	var dateLockChecker = '<?php echo $dateLockChecker; ?>';
+	var branch = '<?php echo $branch; ?>';
+	var transdate = '<?php echo $transdate; ?>';
+
+	var checkpcount = '<?php echo $checkingforsummaryfgts ?>';
 	
 	/*
 	if(dateLockChecker == 1){
@@ -110,6 +126,12 @@ function postItemModule(filename)
 		return false();
 	}
 	*/
+
+	if(checkpcount != 1){
+		app_alert("System Message","You can’t post the inventory if the FGTS inventory is not yet posted.","warning","Ok","","");
+		return false();
+	}
+
 	app_confirm("Post to Summary","Once you've post this, it's final; it can't be altered again.","warning",'postItemModule',filename,'');
 	return false;
 }
@@ -126,6 +148,11 @@ function postToSummary(params)
 	}
 	*/
 	
+	if(checkPcountPosted($branch,$transdate,$shift,$db) != 1){
+		app_alert("System Message","The Pcount is not yet posted, please post the Pcount first.","warning","Ok","","");
+		return false();
+	}
+
 	psaSpinnerOn();
 
 	var mode = params;
