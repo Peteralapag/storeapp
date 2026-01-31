@@ -148,10 +148,7 @@ function postToSummary(params)
 	}
 	*/
 	
-	if(checkPcountPosted($branch,$transdate,$shift,$db) != 1){
-		app_alert("System Message","The Pcount is not yet posted, please post the Pcount first.","warning","Ok","","");
-		return false();
-	}
+
 
 	psaSpinnerOn();
 

@@ -31,25 +31,9 @@ function reload_data(pagename)
 }
 function set_function(menuname,pagename)
 {
-	console.log('Loading ' + pagename + ' ...');
 	psaSpinnerOn();
 	
-	if(pagename == 'receiving')
-	{
-		$.post("../pages/receiving_header.php", { pagename: pagename },
-		function(data) {
-			$('#contentform').html(data);
-		});
-		$('#pagetitle').html(menuname);
-		$.post("../includes/receiving_data.php", { pagename: pagename },
-		function(data) {
-			$('#pagetitle').html(menuname);
-			$('#contentdata').html(data);
-			psaSpinnerOff();
-		});
-	}
-
-	else if(pagename == 'rm_inventory_record')
+	if(pagename == 'rm_inventory_record')
 	{
 		$.post("../pages/rm_inventory_record_header.php", { pagename: pagename },
 		function(data) {
