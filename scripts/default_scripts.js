@@ -33,7 +33,22 @@ function set_function(menuname,pagename)
 {
 	psaSpinnerOn();
 	
-	if(pagename == 'rm_inventory_record')
+	if(pagename == 'breads_forecasting')
+	{
+		$.post("../pages/breads_forecasting_header.php", { pagename: pagename },
+		function(data) {
+			$('#contentform').html(data);
+		});
+		$('#pagetitle').html(menuname);
+		$.post("../includes/breads_forecasting_data.php", { pagename: pagename },
+		function(data) {
+			$('#pagetitle').html(menuname);
+			$('#contentdata').html(data);
+			psaSpinnerOff();
+		});
+	}
+
+	else if(pagename == 'rm_inventory_record')
 	{
 		$.post("../pages/rm_inventory_record_header.php", { pagename: pagename },
 		function(data) {
