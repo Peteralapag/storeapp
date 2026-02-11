@@ -197,7 +197,10 @@ $stmt->close();
         ");
         $stmt->bind_param("iss",$prod['id'],$date,$branch);
         $stmt->execute();
-        $qty = (int)($stmt->get_result()->fetch_assoc()['qty'] ?? 0);
+        $stmt->bind_result($qty);
+        $stmt->fetch();
+        $qty = (int)$qty;
+
         $stmt->close();
 
         $week1Base[$dayName] = $qty;
